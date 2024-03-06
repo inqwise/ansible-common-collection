@@ -1,0 +1,97 @@
+---
+- debug: var=default_discord_message_content
+  tags: debug
+
+- name: defaults for aws environment
+  import_tasks: _defaults_aws.yml
+  when: ec2_instance is defined
+
+- name: identify private ip
+  set_fact:
+    discord_message_private_ip: "{{ ansible_eth0['ipv4']['address'] }}"
+  when: discord_message_private_ip is undefined and ansible_eth0['ipv4']['address'] is defined
+
+- name: dafault_discord_message_webhook_id
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'webhook_id': discord_message_webhook_id }) }}"
+  when: _discord_message.webhook_id is undefined
+
+- name: dafault_discord_message_webhook_token
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'webhook_token': discord_message_webhook_token }) }}"
+  when: _discord_message.webhook_token is undefined
+
+- name: default_discord_message_username
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'username': default_discord_message_username }) }}"
+  when: _discord_message.username is undefined
+
+- debug:
+    msg: "{{ _discord_message | combine({ 'username': default_discord_message_username }) }}"
+  tags: debug
+
+- name: dafault_discord_message_avatar_url
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'avatar_url': default_discord_message_avatar_url }) }}"
+  when: _discord_message.avatar_url is undefined
+
+- name: default_discord_message_content
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'content': default_discord_message_content }) }}"
+  when: _discord_message.content is undefined
+
+# last message
+
+- name: discord_message_embeds_last_message_title
+  set_fact:
+    discord_message_embeds_last_message: "{{ discord_message_embeds_last_message | combine({ 'title': default_discord_message_embeds_last_message_title }) }}" 
+  when: discord_embeds_last_message.title is undefined
+
+- name: discord_message_embeds_last_message_description
+  set_fact:
+    discord_message_embeds_last_message: "{{ discord_message_embeds_last_message | combine({ 'description': default_discord_message_embeds_last_message_description }) }}" 
+  when: discord_embeds_last_message.description is undefined
+
+- name: discord_message_embeds_last_message_color
+  set_fact:
+    discord_message_embeds_last_message: "{{ discord_message_embeds_last_message | combine({ 'color': default_discord_message_embeds_last_message_color }) }}" 
+  when: discord_embeds_last_message.color is undefined
+
+- name: discord_message_embeds_last_message_footer
+  set_fact:
+    discord_message_embeds_last_message: "{{ discord_message_embeds_last_message | combine({ 'footer': default_discord_message_embeds_last_message_footer }) }}" 
+  when: discord_embeds_last_message.footer is undefined
+
+- name: add discord_message_error_description_field
+  set_fact:
+    discord_message_embeds_last_message_fields: "{{ discord_message_embeds_last_message_fields + [discord_message_error_description_field] }}"
+  when: discord_message_failure
+
+- name: add discord_message_embeds_last_message_fields
+  set_fact:
+    discord_message_embeds_last_message: "{{ discord_message_embeds_last_message | combine({ 'fields': discord_message_embeds_last_message_fields }) }}" 
+  when: discord_embeds_last_message.fields is undefined
+
+# add last message
+
+- name: discord_message_embeds_last_message
+  set_fact:
+    discord_message_embeds: "{{ discord_message_embeds + [discord_message_embeds_last_message] }}"
+  when: discord_message_embeds_last_message
+
+# end last message
+
+- name: merge discord_message_embeds with discord_message.embeds
+  set_fact:
+    discord_message_embeds: "{{ _discord_message.embeds + discord_message_embeds }}" 
+  when: _discord_message.embeds is defined
+
+- name: discord_message_embeds
+  set_fact:
+    _discord_message: "{{ _discord_message | combine({ 'embeds': discord_message_embeds }) }}" 
+
+- debug: var=discord_message
+  tags: debug
+
+- debug: var=_discord_message
+  tags: debug

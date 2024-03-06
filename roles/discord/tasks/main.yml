@@ -1,0 +1,7 @@
+---
+
+- include_tasks: validate.yml
+- include_tasks: _defaults.yml
+
+- name: send message
+  community.general.discord: "{{_discord_message}}"

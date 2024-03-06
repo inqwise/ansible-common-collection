@@ -1,0 +1,21 @@
+---
+
+- name: identify private ip
+  set_fact:
+    discord_message_private_ip: "{{ ec2_instance.private_ip }}"
+  when: discord_message_private_ip is undefined and ec2_instance.private_ip is defined
+
+- name: identify public ip
+  set_fact:
+    discord_message_public_ip: "{{ ec2_instance.public_ip }}"
+  when: discord_message_public_ip is undefined and ec2_instance.public_ip is defined
+
+- name: identify hostname
+  set_fact:
+    discord_message_hostname: "{{ ec2_instance.hostname }}"
+  when: discord_message_hostname is undefined and ec2_instance.hostname is defined
+
+- name: identify instance id
+  set_fact:
+    discord_message_instance_id: "{{ ec2_instance.id }}"
+  when: discord_message_instance_id is undefined and ec2_instance.id is defined

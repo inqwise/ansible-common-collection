@@ -1,0 +1,84 @@
+---
+
+- set_fact:
+    ec2_instance: {}
+  when: ec2_instance is undefined
+
+- name: "put AWS session token"
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/api/token
+    method: PUT
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token-ttl-seconds: 60
+  register: token_output
+
+- set_fact:
+    session_token: "{{ token_output.content }}"
+
+- debug: var=session_token
+  tags: debug
+
+- name: "Curl AWS to get this instance's public IP address"
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/public-ipv4
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: ec2_public_ip_output
+
+- debug: var=ec2_public_ip_output.content
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "public_ip": ec2_public_ip_output.content }) }}'
+  when: ec2_public_ip_output.content is defined and ec2_public_ip_output.content | length > 0
+
+- name: Get instance id
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/instance-id
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: instance_id_output
+
+- debug: var=instance_id_output.content
+  run_once: true
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "id": instance_id_output.content }) }}'
+  when: instance_id_output.content is defined and instance_id_output.content | length > 0
+
+- name: Get availability zone
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/placement/availability-zone
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: availability_zone_output
+
+- debug: var=availability_zone_output.content
+  run_once: true
+  tags: debug
+
+- set_fact: 
+    ec2_instance: '{{ ec2_instance | combine({ "zone": availability_zone_output.content }) }}'
+  when: availability_zone_output.content is defined and availability_zone_output.content | length > 0
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "region": availability_zone_output.content | regex_replace(".$","") }) }}'
+  when: availability_zone_output.content is defined and availability_zone_output.content | length > 0
+
+- name: Retrieve all tags on an instance
+  amazon.aws.ec2_tag_info:
+    region: '{{ec2_instance.region}}'
+    resource: '{{ec2_instance.id}}'
+  register: instance_tags_raw
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "tags": instance_tags_raw.tags }) }}'
+  when: instance_tags_raw.tags is defined and instance_tags_raw.tags | length > 0
+
+- debug: var=ec2_instance
+  run_once: true
+  tags: debug

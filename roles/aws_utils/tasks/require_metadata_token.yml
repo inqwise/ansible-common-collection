@@ -1,0 +1,2 @@
+- name: "Require the use of IMDSv2"
+  command: "aws ec2 modify-instance-metadata-options --http-tokens required --http-endpoint enabled --region {{ ec2_instance.region }} --instance-id {{ ec2_instance.id }}"

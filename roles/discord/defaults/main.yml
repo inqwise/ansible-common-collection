@@ -1,0 +1,37 @@
+---
+discord_message: {}
+_discord_message: "{{ discord_message }}"
+discord_message_embeds: []
+discord_message_embeds_last_message: {}
+discord_message_embeds_last_message_author: {}
+discord_message_embeds_last_message_fields: []
+discord_message_hostname: "{{ ansible_hostname | default(omit) }}"
+discord_message_failure: "{{ ansible_failed_result is defined }}"
+discord_message_start_date_time: "{{ ansible_date_time.date + ' ' + ansible_date_time.time }}"
+discord_message_end_date_time: "{{ now(utc=true,fmt='%Y-%m-%d %H:%M:%S') }}"
+discord_message_time_taken_in_seconds: "{{ ((discord_message_end_date_time | to_datetime) - (discord_message_start_date_time | to_datetime)).total_seconds() }}"
+discord_message_time_taken: "{{ '%M:%S' | strftime(discord_message_time_taken_in_seconds) }}"
+discord_message_error_description_field:
+  name: "{{ 'error in ' + ansible_failed_task.name + ':' if ansible_failed_task is defined and ansible_failed_task.name | length > 0 else 'details:' }}"
+  value: |-
+    ```
+    {{ ansible_failed_result.msg }}
+    ```
+
+default_discord_message_username: "{{ ansible_play_name }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}"
+default_discord_message_content: >-
+  {{- 'Failure' if discord_message_failure else 'Success' -}}
+default_discord_message_avatar_url: "{{ 'https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png?hsLang=en-us' if discord_message_failure else 'https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Pool.png' }}"
+default_discord_message_embeds_last_message_title: >-
+ Ansible
+ {{- ' FAILED' if discord_message_failure else ' COMPLETE' -}}
+ {{- ' on ' + discord_message_hostname if discord_message_hostname is defined -}}
+ {{- ' (' + discord_message_private_ip + ')' if discord_message_private_ip is defined -}}
+default_discord_message_embeds_last_message_color: "{{ '15548997' if discord_message_failure else '5763719' }}"
+default_discord_message_embeds_last_message_description: |-
+ {{- '**Public Ip:**' + discord_message_public_ip if discord_message_public_ip is defined -}}
+ {{- ' **Id:**' + discord_message_instance_id if discord_message_instance_id is defined -}}
+default_discord_message_embeds_last_message_footer:
+  text: "duration: {{ discord_message_time_taken_in_seconds | int }} sec"
+
+
