@@ -50,6 +50,7 @@
     ec2_instance: '{{ ec2_instance | combine({ "id": instance_id_output.content }) }}'
   when: instance_id_output.content is defined and instance_id_output.content | length > 0
 
+# AZ
 - name: Get availability zone
   ansible.builtin.uri:
     url: http://169.254.169.254/latest/meta-data/placement/availability-zone
@@ -70,6 +71,77 @@
     ec2_instance: '{{ ec2_instance | combine({ "region": availability_zone_output.content | regex_replace(".$","") }) }}'
   when: availability_zone_output.content is defined and availability_zone_output.content | length > 0
 
+
+# MAC
+- name: Get MAC
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/mac
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: mac_output
+
+- debug: var=mac_output.content
+  run_once: true
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "mac": mac_output.content }) }}'
+  when: mac_output.content is defined and mac_output.content | length > 0
+
+# VPC
+- name: Get VPC CIDR
+  ansible.builtin.uri:
+    url: "http://169.254.169.254/latest/meta-data/network/interfaces/macs/{{ ec2_instance.mac }}/vpc-ipv4-cidr-block"
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: vpc_cidr_output
+
+- debug: var=vpc_cidr_output.content
+  run_once: true
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "vpc_cidr": vpc_cidr_output.content }) }}'
+  when: vpc_cidr_output.content is defined and vpc_cidr_output.content | length > 0
+
+# VPC id
+- name: Get VPC ID
+  ansible.builtin.uri:
+    url: "http://169.254.169.254/latest/meta-data/network/interfaces/macs/{{ ec2_instance.mac }}/vpc-id"
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: vpc_id_output
+
+- debug: var=vpc_id_output.content
+  run_once: true
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "vpc_id": vpc_id_output.content }) }}'
+  when: vpc_id_output.content is defined and vpc_id_output.content | length > 0
+
+# ENI
+- name: Get ENI id
+  ansible.builtin.uri:
+    url: "http://169.254.169.254/latest/meta-data/network/interfaces/macs/{{ ec2_instance.mac }}/interface-id"
+    return_content: true
+    headers:
+      X-aws-ec2-metadata-token: "{{ session_token }}"
+  register: eni_id_output
+
+- debug: var=eni_id_output.content
+  run_once: true
+  tags: debug
+
+- set_fact:
+    ec2_instance: '{{ ec2_instance | combine({ "eni_id": eni_id_output.content }) }}'
+  when: eni_id_output.content is defined and eni_id_output.content | length > 0
+
+
+#TAGS
 - name: Retrieve all tags on an instance
   amazon.aws.ec2_tag_info:
     region: '{{ec2_instance.region}}'
