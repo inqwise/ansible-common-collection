@@ -22,17 +22,19 @@
 - name: "Curl AWS to get this instance's public IP address"
   ansible.builtin.uri:
     url: http://169.254.169.254/latest/meta-data/public-ipv4
+    status_code: 200 
     return_content: true
     headers:
       X-aws-ec2-metadata-token: "{{ session_token }}"
   register: ec2_public_ip_output
+  ignore_errors: true
 
-- debug: var=ec2_public_ip_output.content
+- debug: var=ec2_public_ip_output
   tags: debug
 
 - set_fact:
     ec2_instance: '{{ ec2_instance | combine({ "public_ip": ec2_public_ip_output.content }) }}'
-  when: ec2_public_ip_output.content is defined and ec2_public_ip_output.content | length > 0
+  when: ec2_public_ip_output.content is defined and ec2_public_ip_output.content | length > 0 and ec2_public_ip_output.status == 200
 
 - name: Get instance id
   ansible.builtin.uri:

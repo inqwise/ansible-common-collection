@@ -8,8 +8,8 @@
 
 - name: identify private ip
   set_fact:
-    discord_message_private_ip: "{{ ansible_eth0['ipv4']['address'] }}"
-  when: discord_message_private_ip is undefined and ansible_eth0['ipv4']['address'] is defined
+    discord_message_private_ip: "{{ ansible_default_ipv4['address'] }}"
+  when: discord_message_private_ip is undefined and ansible_default_ipv4['address'] is defined
 
 - name: dafault_discord_message_webhook_id
   set_fact:
