@@ -21,7 +21,7 @@ discord_message_error_description_field:
 default_discord_message_username: "{{ ansible_play_name }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}"
 default_discord_message_content: >-
   {{- 'Failure' if discord_message_failure else 'Success' -}}
-default_discord_message_avatar_url: "{{ 'https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png?hsLang=en-us' if discord_message_failure else 'https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Pool.png' }}"
+default_discord_message_avatar_url: "{{ 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Mango.png?raw=true' if discord_message_failure else 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Pool.png?raw=true' }}"
 default_discord_message_embeds_last_message_title: >-
  Ansible
  {{- ' FAILED' if discord_message_failure else ' COMPLETE' -}}

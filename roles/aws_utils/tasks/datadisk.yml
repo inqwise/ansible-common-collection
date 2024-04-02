@@ -54,4 +54,6 @@
 
 - debug: var=ec2_vol
 
-
+- include_role:
+    name: mount_disk
+  when: disk is defined
