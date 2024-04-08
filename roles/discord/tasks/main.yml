@@ -1,5 +1,11 @@
 ---
 
+- debug: var=ansible_failed_task
+  tags: debug
+
+- debug: var=ansible_failed_result
+  tags: debug
+
 - include_tasks: validate.yml
 - include_tasks: _defaults.yml
 

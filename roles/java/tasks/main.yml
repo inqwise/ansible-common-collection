@@ -1,0 +1,11 @@
+---
+- name: Install java 21
+  dnf:
+    name: java-21-amazon-corretto.aarch64
+    state: present
+
+- name: Verify Java Installation
+  shell: java --version
+  register: java_version
+      
+- debug: var=java_version.stdout_lines
