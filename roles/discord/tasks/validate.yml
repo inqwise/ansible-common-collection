@@ -5,7 +5,6 @@
     msg: "discord_message.webhook_id or discord_message_webhook_id is mandatory"
   when: discord_message_webhook_id is undefined and discord_message.webhook_id is undefined
 
-
 - name: validate webhook_token
   fail:
     msg: "discord_message.webhook_token or discord_message_webhook_token is mandatory"

@@ -15,9 +15,14 @@
   file:
     path: '/home/{{ app_user }}/.aws'
     state: directory
+  tags: configuration
+
 - name: 'apply config'
   template: src='config.j2' dest='/home/{{ app_user }}/.aws/config' owner='{{ app_user }}' group='{{ app_group }}' mode=600
   register: awsconfig
+  tags: configuration
+
 - name: 'apply credentials'
   template: src='credentials.j2' dest='/home/{{ app_user }}/.aws/credentials' owner='{{ app_user }}' group='{{ app_group }}' mode=600
   register: awsconfig
+  tags: configuration

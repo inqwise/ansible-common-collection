@@ -14,19 +14,24 @@
                     or (vol_info.volumes[0].status == "in-use" and vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id) ) )
   retries: 30
   delay: 1
+  tags: configuration
 
 - debug: var=vol_info.volumes
   run_once: true
+  tags: debug
 
 - set_fact: 
     ec2_instance: '{{ ec2_instance | combine({"data_volume_id": vol_info.volumes[0].id}) }}'
   when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "available"
+  tags: configuration
 
 - set_fact: 
     ec2_instance: '{{ ec2_instance | combine({"data_volume_attached": vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id }) }}'
   when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "in-use"
+  tags: configuration
 
 - debug: var=ec2_instance
+  tags: debug
 
 - name: Create new volume using SSD storage
   amazon.aws.ec2_vol:
@@ -42,6 +47,7 @@
     kms_key_id: "{{ disk.kms_key_id }}"
   register: ec2_vol
   when: ec2_instance.data_volume_id is undefined and not (ec2_instance.data_volume_attached | default(false))
+  tags: configuration
 
 - name: Attach an existing volume to instance.
   amazon.aws.ec2_vol:
@@ -51,8 +57,10 @@
     device_name: "{{ disk.name }}"
   register: ec2_vol
   when: ec2_instance.data_volume_id is defined and not (ec2_instance.data_volume_attached | default(false))
+  tags: configuration
 
 - debug: var=ec2_vol
+  tags: debug
 
 - include_role:
     name: mount_disk

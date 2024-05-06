@@ -12,3 +12,4 @@
     - { limit_type: 'hard', limit_item: 'memlock', value: unlimited }
 - name: reload settings from all system configuration files
   shell: sysctl --system
+  tags: configuration

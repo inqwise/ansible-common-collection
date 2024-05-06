@@ -1,11 +1,14 @@
 - name: disable hugepage
   command: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+  tags: configuration
 
 - name: disable hugepage defrag
   command: echo never > /sys/kernel/mm/transparent_hugepage/defrag
+  tags: configuration
 
 - name: add a vm.swappiness setting at the end of the sysctl.conf
   sysctl: name=vm.swappiness value=10 state=present reload=yes
+  tags: configuration
 
 - include_role:
     name: sysctl
@@ -18,8 +21,8 @@
 
 - name: configure system settings, file descriptors and number of threads
   pam_limits:
-    domain: "{{ulimit.user}}"
-    limit_type: "{{item.limit_type}}"
+    domain: "{{ulimitf.user}}"
+    limit_type: "{{itefm.limit_type}}"
     limit_item: "{{item.limit_item}}"
     value: "{{item.value}}"
   with_items:
@@ -27,6 +30,8 @@
     - { limit_type: '-', limit_item: 'nproc', value: 65536 }
     - { limit_type: 'soft', limit_item: 'memlock', value: unlimited }
     - { limit_type: 'hard', limit_item: 'memlock', value: unlimited }
+  tags: configuration
 
 - name: reload settings from all system configuration files
   shell: sysctl --system
+  tags: configuration

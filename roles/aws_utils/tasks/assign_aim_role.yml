@@ -5,3 +5,4 @@
     instance_ids:
       - "{{ ec2_instance.id }}"
   when: aim_role is defined
+  tags: configuration

@@ -4,6 +4,7 @@
   block:
 
     - debug: var=disk
+      tags: debug
     
     - name: "Ensure the mount directory exists"
       file:
@@ -11,23 +12,28 @@
         owner: '{{ disk.user }}'
         group: '{{ disk.group }}'
         state: directory
+      tags: installation
 
     - name: "Create a {{ disk.fstype }} filesystem on {{ disk.name }}"
       community.general.filesystem:
         fstype: "{{ disk.fstype }}"
         dev: "{{ disk.name }}"
       register: filesystem
+      tags: configuration
 
     - name: "Get symlink target"
       command: readlink -f {{ disk.name }}
       register: readlink_out
+      tags: configuration
 
     - debug: var=readlink_out
+      tags: debug
 
     - name: "Get UUID for partition"
       command: blkid -s UUID -o value {{ readlink_out.stdout }}
       register: disk_blkid
       changed_when: False
+      tags: configuration
 
     - name: "Mount additional disk"
       mount:
@@ -37,6 +43,7 @@
         passno: '0'
         src: 'UUID={{ disk_blkid.stdout }}'
         state: '{{ disk.mount_state|d("mounted") }}'
+      tags: configuration
 
     - name: "Ensure the permissions are set correctly"
       file:
@@ -44,6 +51,7 @@
         owner: '{{ disk.user }}'
         group: '{{ disk.group }}'
         state: directory
-        
+      tags: configuration
+
   when: disk_configure|default(True)
 
