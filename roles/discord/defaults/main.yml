@@ -18,7 +18,7 @@ discord_message_error_description_field:
     {{ ansible_failed_result.msg | default(ansible_failed_task) }}
     ```
 
-default_discord_message_username: "{{ ansible_play_name }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}"
+default_discord_message_username: "{{ ansible_play_name }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}{{ ' by ' + discord_message_owner_name if discord_message_owner_name is defined }}"
 default_discord_message_content: >-
   {{- 'Failure' if discord_message_failure else 'Success' -}}
 default_discord_message_avatar_url: "{{ 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Mango.png?raw=true' if discord_message_failure else 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Pool.png?raw=true' }}"
@@ -33,5 +33,6 @@ default_discord_message_embeds_last_message_description: |-
  {{- ' **Id:**' + discord_message_instance_id if discord_message_instance_id is defined -}}
 default_discord_message_embeds_last_message_footer:
   text: "duration: {{ discord_message_time_taken_in_seconds | int }} sec"
+#owner_name: "test"
 
 
