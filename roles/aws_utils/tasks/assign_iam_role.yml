@@ -1,8 +1,8 @@
 - name: Attach an IAM role to instance
   ec2_instance:
     region: "{{ ec2_instance.region }}"
-    instance_role: "{{ aim_role }}"
+    instance_role: "{{ iam_role }}"
     instance_ids:
       - "{{ ec2_instance.id }}"
-  when: aim_role is defined
+  when: iam_role is defined
   tags: configuration
