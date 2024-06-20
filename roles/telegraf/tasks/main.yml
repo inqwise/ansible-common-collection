@@ -1,0 +1,16 @@
+---
+# tasks file for ansible-telegraf
+
+- debug: var=ansible_os_family
+
+- name: "Install on RedHat"
+  include_tasks: "RedHat.yml"
+  when:
+    - telegraf_install|default(True) and ansible_os_family == "RedHat" and not telegraf_agent_docker
+  tags: installation
+
+- name: "Configure Telegraf"
+  include_tasks: "configure_linux.yml"
+  when:
+    - telegraf_configure|default(True) and ansible_os_family not in ['Windows', 'Darwin']
+  tags: configuration
