@@ -9,4 +9,3 @@
       - "{{ ec2_instance.id }}"
   when: aws_iam_role is defined
   tags: configuration
-    

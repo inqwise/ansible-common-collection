@@ -1,5 +1,6 @@
 ---
-- debug: var=default_discord_message_content
+
+- debug: var=default_discord_message_content verbosity=1
   tags: debug
 
 - name: defaults for aws environment
@@ -28,6 +29,7 @@
 
 - debug:
     msg: "{{ _discord_message | combine({ 'username': default_discord_message_username }) }}"
+    verbosity: 1
   tags: debug
 
 - name: dafault_discord_message_avatar_url
@@ -90,8 +92,8 @@
   set_fact:
     _discord_message: "{{ _discord_message | combine({ 'embeds': discord_message_embeds }) }}" 
 
-- debug: var=discord_message
+- debug: var=discord_message verbosity=1
   tags: debug
 
-- debug: var=_discord_message
+- debug: var=_discord_message verbosity=1
   tags: debug

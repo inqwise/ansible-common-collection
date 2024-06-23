@@ -1,8 +1,9 @@
-- name: Attach an IAM role to instance
-  ec2_instance:
-    region: "{{ ec2_instance.region }}"
-    instance_role: "{{ iam_role }}"
-    instance_ids:
-      - "{{ ec2_instance.id }}"
-  when: iam_role is defined
-  tags: configuration
+---
+
+- name: Subscribe to Replace IAM role
+  debug:
+    msg: "Subscribe to Replace IAM role"
+  changed_when: true
+  notify: "Replace IAM role"
+    
+  

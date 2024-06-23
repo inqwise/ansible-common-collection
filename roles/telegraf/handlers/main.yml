@@ -6,5 +6,5 @@
     name: telegraf
     state: restarted
     enabled: yes
-  when: telegraf_configure|default(True)
+  tags: configuration
     

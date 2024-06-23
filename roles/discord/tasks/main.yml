@@ -1,15 +1,15 @@
 ---
 
-- debug: var=ansible_failed_task
+- debug: var=ansible_failed_task verbosity=1
   tags: debug
 
-- debug: var=ansible_failed_result
+- debug: var=ansible_failed_result verbosity=1
   tags: debug
 
 - include_tasks: validate.yml
 - include_tasks: _defaults.yml
 
-- debug: var=discord_message_failure
+- debug: var=discord_message_failure verbosity=1
   tags: debug
 
 - name: Flush handlers
