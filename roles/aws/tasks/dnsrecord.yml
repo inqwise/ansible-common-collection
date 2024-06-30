@@ -1,0 +1,11 @@
+---
+- name: route53 record
+  community.aws.route53:
+    state: present
+    zone: "{{ record.zone }}"
+    record: "{{ record.name }}"
+    type: "{{ record.type | default('A') }}"
+    ttl: "{{ record.ttl | default(7200) }}"
+    value: "{{ record.value }}"
+    private_zone: "{{ record.private | default(false) }}"
+    overwrite: true

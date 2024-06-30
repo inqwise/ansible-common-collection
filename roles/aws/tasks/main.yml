@@ -1,0 +1,30 @@
+---
+- debug: var=dns_record_list
+  tags: debug
+
+- name: Collect instance info
+  import_role:
+    name: aws_utils
+    tasks_from: collect_instance_info_speedy
+    
+- name: Set facts based on tag mappings
+  set_fact:
+    "{{ item.value }}": "{{ ec2_instance.tags[item.key] }}"
+  when:
+    - ec2_instance.tags[item.key] is defined
+    - tags_vars is defined
+  with_dict: "{{ tags_vars | default({}) }}"
+  tags: configuration
+
+- name: Process datadisk
+  import_role: 
+    name: aws_utils
+    tasks_from: datadisk
+  when: disk is defined
+
+- name: aws tasks complete
+  debug: 
+    msg: aws postactions
+  changed_when: yes
+  notify: "aws postactions"
+  tags: debug
