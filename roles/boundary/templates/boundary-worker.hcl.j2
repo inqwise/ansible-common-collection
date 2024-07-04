@@ -1,0 +1,49 @@
+{% if hcp_boundary_cluster_id is defined %}
+hcp_boundary_cluster_id = "{{ hcp_boundary_cluster_id }}"
+{% endif %}
+
+listener "tcp" {
+  address = "{{ boundary_address }}:9202"
+  purpose = "proxy"
+{% for option, value in boundary_worker_listener_parameters.items() %}
+  {{ option }} = "{{ value }}"
+{% endfor %}
+}
+
+worker {
+  name = "{{ ansible_hostname }}"
+  description = "Boundary worker."
+
+  # Workers must be able to reach controllers on :9201
+  controllers = [
+{% for controller in boundary_worker_controllers %}
+{% if controller == inventory_hostname %}
+{# Boundary can't always reach its own public IP address, so use local IP #}
+    "{{ hostvars[controller]['ansible_default_ipv4']['address'] }}",
+{% else %}
+    "{{ controller }}",
+{% endif %}
+{% endfor %}
+  ]
+{% for option, value in boundary_worker_parameters.items() %}
+  {{ option }} = "{{ value }}"
+{% endfor %}
+
+  # Tags allow for traffic and target routing
+  tags {
+{% for tag, values in boundary_worker_tags.items() %}
+    "{{ tag }}" = [
+{% for value in values %}
+      "{{ value }}"
+{% endfor %}
+    ]
+{% endfor %}
+  }
+}
+
+kms "{{ boundary_kms_type }}" {
+  purpose = "worker-auth"
+{% for param, value in boundary_kmsk['worker-auth'].items() %}
+  {{ param }} = "{{ value }}"
+{% endfor %}
+}

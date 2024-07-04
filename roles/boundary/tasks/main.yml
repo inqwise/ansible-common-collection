@@ -1,0 +1,66 @@
+---
+- name: set boundary_iface
+  when: boundary_iface is undefined
+  set_fact:
+    boundary_iface: "{{ ansible_default_ipv4.interface }}"
+
+- name: set boundary_address
+  set_fact:
+    boundary_address: "{{ hostvars[inventory_hostname]['ansible_'+boundary_iface]['ipv4']['address'] }}"
+
+- name: install Boundary with packages
+  when: boundary_install_package|bool
+  block:
+    - name: install Boundary with Amazon packages
+      include_tasks: install_package_amazon.yml
+      register: install_package
+      when: (ansible_kernel | regex_search('(amzn2)')) == "amzn2"
+
+    - name: install Boundary with Debian packages
+      include_tasks: install_package_debian.yml
+      register: install_package
+      when: not install_package.skipped | default(true) and ansible_os_family == 'Debian'
+
+    - name: install Boundary with RedHat packages
+      include_tasks: install_package_redhat.yml
+      when: not install_package.skipped | default(true) and ansible_os_family == 'RedHat'
+
+- name: install Boundary manually
+  include_tasks: install_manual.yml
+  when: not boundary_install_package|bool or ansible_os_family not in ['Debian', 'RedHat', 'Darwin']
+
+- name: creating boundary config directory
+  file:
+    state: directory
+    path: '{{ boundary_home_directory }}'
+    owner: '{{ boundary_user }}'
+    group: '{{ boundary_group }}'
+    mode: '0750'
+  become: true
+
+- name: install API TLS certificates
+  when: not boundary_tls_disable|bool and boundary_controller
+  include_tasks: tls_api.yml
+
+- name: install Vault Transit TLS certificates
+  when: boundary_kms_type == 'transit'
+  include_tasks: tls_vault_transit.yml
+
+- name: configure boundary
+  include_tasks: config.yml
+
+# Get the service list after creating service
+- name: collect facts about system services
+  service_facts:
+  become: true
+  check_mode: no  # always run
+
+- name: Database tasks
+  include_tasks: database.yml
+  when: boundary_controller
+
+- name: configure firewall
+  include_tasks: firewall.yml
+
+- name: install boundary autocomplete
+  include_tasks: autocomplete.yml

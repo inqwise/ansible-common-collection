@@ -1,0 +1,1 @@
+discord_message_environment: "{{ environment_name }}"

@@ -1,0 +1,14 @@
+---
+- name: restart boundary-controller daemon
+  become: true
+  systemd:
+    name: "{{ boundary_controller_service }}"
+    state: "{{ 'restarted' if ansible_facts.services[boundary_controller_service].state == 'running' else 'started' }}"
+  when: boundary_start_services|bool and boundary_controller
+
+- name: restart boundary-worker daemon
+  become: true
+  systemd:
+    name: "{{ boundary_worker_service }}"
+    state: "{{ 'restarted' if ansible_facts.services[boundary_worker_service].state == 'running' else 'started' }}"
+  when: boundary_start_services|bool and boundary_worker

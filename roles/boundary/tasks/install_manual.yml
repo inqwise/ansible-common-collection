@@ -1,0 +1,90 @@
+---
+- name: installing boundary dependencies
+  package:
+    name:
+      - unzip
+      - curl
+    state: present
+  become: true
+
+- name: creating boundary directories
+  file:
+    state: directory
+    path: '{{ item }}'
+    owner: '{{ boundary_user }}'
+    group: '{{ boundary_group }}'
+    mode: '0750'
+  with_items:
+    - '{{ boundary_home_directory }}'
+    - '{{ boundary_data_directory }}'
+    - '{{ boundary_install_directory }}'
+  become: true
+
+- name: ensure remote boundary dir exists
+  file:
+    path: /tmp/boundary
+    state: directory
+    mode: 0755
+  become: true
+
+- name: check boundary package checksum file
+  stat:
+    path: "/tmp/boundary/{{ boundary_shasums }}"
+  register: boundary_checksum
+
+- name: get boundary package checksum file
+  get_url:
+    url: "{{ boundary_checksum_file_url }}"
+    dest: "/tmp/boundary/{{ boundary_shasums }}"
+  tags: installation
+  when: not boundary_checksum.stat.exists | bool
+
+- name: get boundary package checksum
+  shell: "grep {{ boundary_archive }} /tmp/boundary/{{ boundary_shasums }}"
+  register: boundary_sha256
+  tags:
+    - installation
+    - skip_ansible_lint
+
+- name: check boundary package file
+  stat:
+    path: "/tmp/boundary/{{ boundary_archive }}"
+  register: boundary_package
+  tags: installation
+
+- name: "download boundary - {{ boundary_zip_url }}"
+  get_url:
+    url: "{{ boundary_zip_url }}"
+    dest: "/tmp/boundary/{{ boundary_archive }}"
+    checksum: "sha256:{{ boundary_sha256.stdout.split(' ')|first }}"
+    timeout: "300"
+  tags: installation
+  when: not boundary_package.stat.exists | bool
+
+- name: unarchive boundary and install binary
+  become: true
+  unarchive:
+    remote_src: true
+    src: '/tmp/boundary/{{ boundary_archive }}'
+    dest: '{{ boundary_install_directory }}'
+    owner: '{{ boundary_user }}'
+    group: '{{ boundary_group }}'
+    mode: '0770'
+  tags:
+    - install
+  register: boundary_package
+  notify:
+    - restart boundary-controller daemon
+    - restart boundary-worker daemon
+
+- name: check mlock capability
+  become: true
+  shell: "set -o pipefail && getcap {{ boundary_install_directory }}/boundary |grep cap_ipc_lock+ep"
+  changed_when: false  # read-only task
+  failed_when: false
+  register: mlock_capability
+
+- name: enable non root mlock capability
+  become: true
+  command: "setcap cap_ipc_lock=+ep {{ boundary_install_directory }}/boundary"
+  when: mlock_capability.rc|int == 1
