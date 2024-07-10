@@ -19,7 +19,6 @@ boundary_controller_service: "boundary-controller{{ '.service' if ansible_servic
 boundary_controller_parameters: {}
 boundary_worker_service: "boundary-worker{{ '.service' if ansible_service_mgr == 'systemd' }}"
 boundary_worker_parameters: {}
-boundary_worker_controllers: ""
 boundary_worker_tags: {}
 
 # https://www.boundaryproject.io/docs/configuration/controller#database

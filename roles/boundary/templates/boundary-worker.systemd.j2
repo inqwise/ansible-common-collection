@@ -2,7 +2,7 @@
 Description="HashiCorp Boundary Worker - Access any system from anywhere based on user identity"
 
 [Service]
-ExecStart={{ boundary_install_directory }}/boundary-worker server -config {{ boundary_worker_file }}
+ExecStart={{ boundary_install_directory }}/boundary server -config {{ boundary_worker_file }}
 User={{ boundary_user }}
 Group={{ boundary_group }}
 LimitMEMLOCK=infinity

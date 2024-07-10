@@ -11,20 +11,9 @@ listener "tcp" {
 }
 
 worker {
-  name = "{{ ansible_hostname }}"
-  description = "Boundary worker."
+#  name = "{{ boundary_worker_name | default(ansible_hostname) }}"
+#  description = "Boundary worker."
 
-  # Workers must be able to reach controllers on :9201
-  controllers = [
-{% for controller in boundary_worker_controllers %}
-{% if controller == inventory_hostname %}
-{# Boundary can't always reach its own public IP address, so use local IP #}
-    "{{ hostvars[controller]['ansible_default_ipv4']['address'] }}",
-{% else %}
-    "{{ controller }}",
-{% endif %}
-{% endfor %}
-  ]
 {% for option, value in boundary_worker_parameters.items() %}
   {{ option }} = "{{ value }}"
 {% endfor %}
@@ -41,9 +30,11 @@ worker {
   }
 }
 
+{% if boundary_kms is defined %}
 kms "{{ boundary_kms_type }}" {
   purpose = "worker-auth"
-{% for param, value in boundary_kmsk['worker-auth'].items() %}
+{% for param, value in boundary_kms['worker-auth'].items() %}
   {{ param }} = "{{ value }}"
 {% endfor %}
 }
+{% endif %}
