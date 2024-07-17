@@ -12,8 +12,8 @@
     "{{ item.value }}": "{{ ec2_instance.tags[item.key] }}"
   when:
     - ec2_instance.tags[item.key] is defined
-    - tags_vars is defined
-  with_dict: "{{ tags_vars | default({}) }}"
+    - tags_facts is defined
+  with_dict: "{{ tags_facts | default({}) }}"
   tags: configuration
 
 - name: Process datadisk
