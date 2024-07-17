@@ -4,7 +4,7 @@
     ec2_instance: {}
   when: ec2_instance is undefined
 
-- name: "put AWS session token"
+- name: "get AWS session token"
   ansible.builtin.uri:
     url: http://169.254.169.254/latest/api/token
     method: PUT
