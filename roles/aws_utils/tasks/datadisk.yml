@@ -14,6 +14,13 @@
                     or (vol_info.volumes[0].status == "in-use" and vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id) ) )
   retries: 30
   delay: 1
+  ignore_errors: true
+  tags: configuration
+
+- name: Fail if in use
+  fail:
+    msg: "volume {{ vol_info.volumes[0].id }} in use"
+  when: vol_info.volumes[0].status == "in-use"
   tags: configuration
 
 - debug: var=vol_info.volumes
@@ -65,3 +72,4 @@
 - include_role:
     name: mount_disk
   when: disk is defined
+
