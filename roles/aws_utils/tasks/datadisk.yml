@@ -20,7 +20,7 @@
 - name: Fail if in use
   fail:
     msg: "volume {{ vol_info.volumes[0].id }} in use"
-  when: vol_info.volumes[0].status == "in-use"
+  when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "in-use"
   tags: configuration
 
 - debug: var=vol_info.volumes
