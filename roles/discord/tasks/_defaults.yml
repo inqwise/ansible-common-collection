@@ -12,12 +12,12 @@
     discord_message_private_ip: "{{ ansible_default_ipv4['address'] }}"
   when: discord_message_private_ip is undefined and ansible_default_ipv4['address'] is defined
 
-- name: dafault_discord_message_webhook_id
+- name: default_discord_message_webhook_id
   set_fact:
     _discord_message: "{{ _discord_message | combine({ 'webhook_id': discord_message_webhook_id }) }}"
   when: _discord_message.webhook_id is undefined
 
-- name: dafault_discord_message_webhook_token
+- name: default_discord_message_webhook_token
   set_fact:
     _discord_message: "{{ _discord_message | combine({ 'webhook_token': discord_message_webhook_token }) }}"
   when: _discord_message.webhook_token is undefined
