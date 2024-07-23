@@ -20,7 +20,8 @@
   import_role: 
     name: aws_utils
     tasks_from: datadisk
-  when: disk is defined
+  when: disk is defined and disk.enable | default (true)
+  tags: datadisk
 
 - name: aws tasks complete
   debug: 
