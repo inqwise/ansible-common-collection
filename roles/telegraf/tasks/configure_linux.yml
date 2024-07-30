@@ -32,12 +32,6 @@
   systemd:
     daemon_reload: yes
 
-- name: Copy hourly reload telegraf script file
-  ansible.builtin.copy:
-    src: telegraf
-    dest: /etc/cron.hourly/telegraf
-    mode: a+x
-
 - name: "Check if extra plugins directory exists in case of exclusive"
   stat:
     path: "{{ telegraf_agent_config_path }}/telegraf.d"

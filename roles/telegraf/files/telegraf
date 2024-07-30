@@ -1,4 +1,0 @@
-#!/bin/bash -e 
-# random sleep (max 5 min) to prevent clients from hitting the server at the same time 
-SLEEP=$[ ($RANDOM % 300) ] && sleep $SLEEP 
-systemctl reload telegraf
