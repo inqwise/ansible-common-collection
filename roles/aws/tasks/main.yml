@@ -2,11 +2,16 @@
 - debug: var=dns_record_list
   tags: debug
 
+- name: Extend OS family
+  ansible.builtin.import_role:
+    name: aws_utils
+    tasks_from: collect_instance_info_speedy
+
 - name: Collect instance info
   import_role:
     name: aws_utils
     tasks_from: collect_instance_info_speedy
-    
+  
 - name: Set facts based on tag mappings
   set_fact:
     "{{ item.value }}": "{{ ec2_instance.tags[item.key] }}"
