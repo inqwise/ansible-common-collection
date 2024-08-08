@@ -5,7 +5,7 @@
 - name: Extend OS family
   ansible.builtin.import_role:
     name: aws_utils
-    tasks_from: collect_instance_info_speedy
+    tasks_from: extend_os_family
 
 - name: Collect instance info
   import_role:
@@ -19,14 +19,12 @@
     - ec2_instance.tags[item.key] is defined
     - tags_facts is defined
   with_dict: "{{ tags_facts | default({}) }}"
-  tags: configuration
 
 - name: Process datadisk
   import_role: 
     name: aws_utils
     tasks_from: datadisk
   when: disk is defined and disk.enable | default (true)
-  tags: datadisk
 
 - name: aws tasks complete
   debug: 
