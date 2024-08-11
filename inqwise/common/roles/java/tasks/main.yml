@@ -1,14 +1,16 @@
 ---
+- name: Java install
+  tags: installation
+  block:
+
 - name: Install java 21
   dnf:
     name: java-21-amazon-corretto.aarch64
     state: present
-  tags: installation
 
 - name: Verify Java Installation
   shell: java --version
   register: java_version
-  tags: installation
       
 - debug: var=java_version.stdout_lines
   tags: debug

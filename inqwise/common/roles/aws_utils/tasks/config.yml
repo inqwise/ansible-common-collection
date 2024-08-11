@@ -1,5 +1,4 @@
----
-  
+---  
 # - name: create .aws folder for root
 #   file:
 #     path: '~/.aws'
@@ -10,19 +9,19 @@
 # - name: 'apply credentials'
 #   template: src='credentials.j2' dest='~/.aws/credentials' owner='root' group='root' mode=600
 #   register: awsconfig
-
-- name: create .aws folder for '{{ app_user }}' user
-  file:
-    path: '/home/{{ app_user }}/.aws'
-    state: directory
+- name: Aws utils configure
   tags: configuration
+  block:
 
-- name: 'apply config'
-  template: src='config.j2' dest='/home/{{ app_user }}/.aws/config' owner='{{ app_user }}' group='{{ app_group }}' mode=600
-  register: awsconfig
-  tags: configuration
+    - name: create .aws folder for '{{ app_user }}' user
+      file:
+        path: '/home/{{ app_user }}/.aws'
+        state: directory
 
-- name: 'apply credentials'
-  template: src='credentials.j2' dest='/home/{{ app_user }}/.aws/credentials' owner='{{ app_user }}' group='{{ app_group }}' mode=600
-  register: awsconfig
-  tags: configuration
+    - name: 'apply config'
+      template: src='config.j2' dest='/home/{{ app_user }}/.aws/config' owner='{{ app_user }}' group='{{ app_group }}' mode=600
+      register: awsconfig
+
+    - name: 'apply credentials'
+      template: src='credentials.j2' dest='/home/{{ app_user }}/.aws/credentials' owner='{{ app_user }}' group='{{ app_group }}' mode=600
+      register: awsconfig

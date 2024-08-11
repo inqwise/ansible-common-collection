@@ -9,3 +9,6 @@
     value: "{{ record.value }}"
     private_zone: "{{ record.private | default(false) }}"
     overwrite: true
+  tags: 
+    - installation
+    - configuration

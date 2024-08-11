@@ -1,20 +1,24 @@
 ---
 # description: RedHat specific installation
-- name: "Add yum repository"
-  yum_repository:
-    name: influxdb
-    description: InfluxDB Repository - RHEL $releasever
-    baseurl: "https://repos.influxdata.com/stable/$basearch/main"
-    gpgcheck: yes
-    gpgkey: "https://repos.influxdata.com/influxdata-archive_compat.key"
-    enabled: yes
-  become: true
+- name: RedHat specific installation
+  tags: installation
+  block:
 
-- name: "Install Telegraf package"
-  package:
-    name: telegraf
-    state: present
-  register: is_telegraf_package_installed
-  until: is_telegraf_package_installed is succeeded
-  become: true
-  notify: "Restart Telegraf"
+    - name: "Add yum repository"
+      yum_repository:
+        name: influxdb
+        description: InfluxDB Repository - RHEL $releasever
+        baseurl: "https://repos.influxdata.com/stable/$basearch/main"
+        gpgcheck: yes
+        gpgkey: "https://repos.influxdata.com/influxdata-archive_compat.key"
+        enabled: yes
+      become: true
+
+    - name: "Install Telegraf package"
+      package:
+        name: telegraf
+        state: present
+      register: is_telegraf_package_installed
+      until: is_telegraf_package_installed is succeeded
+      become: true
+      notify: "Restart Telegraf"

@@ -2,6 +2,7 @@
 # tasks file for ansible-telegraf
 
 - debug: var=ansible_os_family
+  tags: debug
 
 - name: "Install on RedHat"
   include_tasks: "RedHat.yml"

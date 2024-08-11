@@ -19,6 +19,9 @@
     - ec2_instance.tags[item.key] is defined
     - tags_facts is defined
   with_dict: "{{ tags_facts | default({}) }}"
+  tags: 
+    - installation
+    - configuration
 
 - name: Process datadisk
   import_role: 
