@@ -8,7 +8,6 @@
   when:
     - dns_record_list is defined
   listen: "aws postactions"
-  tags: configuration
 
 - name: replace IAM role
   ansible.builtin.ec2_instance:
@@ -18,4 +17,3 @@
       - "{{ ec2_instance.id }}"
   when: aws_iam_role is defined
   listen: "aws postactions"
-  tags: configuration

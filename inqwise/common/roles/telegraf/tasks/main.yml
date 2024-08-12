@@ -15,3 +15,6 @@
   when:
     - telegraf_configure|default(True) and ansible_os_family not in ['Windows', 'Darwin']
   tags: configuration
+
+- debug: var=telegraf_service_start_and_enable
+  tags: debug

@@ -73,3 +73,5 @@ telegraf_win_service_args:
 
 telegraf_mac_user: user
 telegraf_mac_group: admin
+
+telegraf_service_start_and_enable: "{{ ansible_run_tags | length == 0 or 'installation' in ansible_run_tags }}"

@@ -21,4 +21,3 @@
       register: is_telegraf_package_installed
       until: is_telegraf_package_installed is succeeded
       become: true
-      notify: "Restart Telegraf"

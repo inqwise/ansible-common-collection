@@ -34,4 +34,4 @@
     msg: aws postactions
   changed_when: yes
   notify: "aws postactions"
-  tags: debug
+  tags: configuration
