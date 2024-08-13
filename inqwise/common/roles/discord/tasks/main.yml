@@ -1,5 +1,19 @@
 ---
 
+- debug: 
+    msg: "In flush_handlers recover mode"
+  when: flush_handlers is defined
+  tags: debug
+
+- name: Flush handlers
+  include_tasks:
+    file: include_flush.yml
+  register: flush_handlers
+  when: discord_message_failure == false
+
+- debug: var=flush_handlers
+  tags: debug
+
 - debug: var=ansible_failed_task verbosity=1
   tags: debug
 
@@ -11,11 +25,6 @@
 
 - debug: var=discord_message_failure verbosity=1
   tags: debug
-
-- name: Flush handlers
-  include_tasks:
-    file: include_flush.yml
-  when: discord_message_failure == false
 
 - name: send message
   community.general.discord: "{{_discord_message}}"
