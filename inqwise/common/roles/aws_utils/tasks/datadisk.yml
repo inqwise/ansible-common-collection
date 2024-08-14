@@ -43,7 +43,7 @@
         instance: "{{ ec2_instance.id }}"
         region: "{{ ec2_instance.region }}"
         volume_size: "{{ disk.size }}"
-        volume_type: gp2
+        volume_type: "{{ disk.type | default('gp3') }}"
         device_name: "{{ disk.name }}"
         delete_on_termination: "{{ private_dns is undefined or disk.delete_on_termination | default(false) }}"
         tags: {"b-HostRole": "{{ private_dns | default(ansible_hostname) }}-data", "Name":"{{ private_dns | default(ansible_hostname) }}-data", "b-app": "{{ disk.app | default(ansible_hostname) }}"}
