@@ -237,3 +237,6 @@ dnsmasq_log_dhcp: no
 # dnsmasq_conf_dir: /etc/dnsmasq.d
 # dnsmasq_dhcp_name_match: "set:wpad-ignore,wpad"
 # dnsmasq_ignore_names: "tag:wpad-ignore"
+dnsmasq_deploy: true
+dnsmasq_install: true
+

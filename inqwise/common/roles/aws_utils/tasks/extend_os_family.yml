@@ -4,12 +4,12 @@
     ansible_os_family: "Amazon"
   when: ansible_kernel | regex_search('(amzn2)') == "amzn2"
 
-- name: Set ansible_distribution_version_major for Amazon Linux 2
+- name: Set ansible_os_version_major for Amazon Linux 2
   set_fact:
-    ansible_distribution_version_major: "2"
+    ansible_os_version_major: "2"
   when: ansible_os_family == "Amazon" and ansible_distribution_version is version('2', '=')
 
-- name: Set ansible_distribution_version_major for Amazon Linux 2023
+- name: Set ansible_os_version_major for Amazon Linux 2023
   set_fact:
-    ansible_distribution_version_major: "2023"
+    ansible_os_version_major: "2023"
   when: ansible_os_family == "Amazon" and ansible_distribution_version is version('2023', '=')

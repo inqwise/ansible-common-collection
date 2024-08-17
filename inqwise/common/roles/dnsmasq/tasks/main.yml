@@ -1,16 +1,18 @@
 ---
 # tasks file for dnsmasq
 
-- name: dnsmasq_install
-  debug: var=dnsmasq_install
-
-- name: dnsmasq_deploy
-  debug: var=dnsmasq_deploy
-
 - name: "Install"
   include_tasks: "install.yml"
-  when: dnsmasq_install|default(True)
+  args:
+    apply:
+      tasks: installation
+  when: dnsmasq_install
+  tasks: installation
 
 - name: "Deploy"
   include_tasks: "deploy.yml"
-  when: dnsmasq_deploy|default(True)
+  args:
+    apply:
+      tasks: configuration
+  when: dnsmasq_deploy
+  tasks: configuration

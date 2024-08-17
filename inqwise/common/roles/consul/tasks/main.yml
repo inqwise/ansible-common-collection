@@ -1,0 +1,47 @@
+---
+# tasks file for consul
+- name: consul_install
+  debug: var=consul_install
+
+- name: consul_deploy
+  debug: var=consul_deploy
+
+- name: consul_default network interface name
+  debug: var=ansible_default_ipv4.interface
+
+- name: Get default IPv4 address
+  debug:
+    msg: "The default IPv4 address is {{ ansible_default_ipv4.address }}"
+
+- name: consul_reverse_addr
+  debug:
+    msg: "{{ ansible_default_ipv4.address.split('.')[1] + '.' + ansible_default_ipv4.address.split('.')[0] + '.in-addr.arpa' }}"
+
+- include_role:
+    name: dnsmasq
+  vars:
+    dnsmasq_install: "{{ consul_install }}"
+    dnsmasq_deploy: "{{ consul_deploy }}"
+    dnsmasq_group: root
+    dnsmasq_servers:
+      - domain: consul
+        nameserver: "127.0.0.1#{{ consul_ports_dns }}"
+      - domain: "{{ consul_reverse_addr }}"
+        nameserver: "127.0.0.1#{{ consul_ports_dns }}"
+  when: not consul_server
+
+- name: "Install"
+  ansible.builtin.include_tasks: 
+    file: "install.yml"
+    apply:
+      tags: installation
+  when: consul_install
+  tags: installation
+
+- name: "Deploy"
+  ansible.builtin.include_tasks: 
+    file: "deploy.yml"
+    apply:
+      tags: configuration    
+  when: consul_deploy
+  tags: configuration
