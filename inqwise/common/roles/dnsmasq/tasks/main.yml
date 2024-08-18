@@ -5,14 +5,14 @@
   include_tasks: "install.yml"
   args:
     apply:
-      tasks: installation
+      tags: installation
   when: dnsmasq_install
-  tasks: installation
+  tags: installation
 
 - name: "Deploy"
   include_tasks: "deploy.yml"
   args:
     apply:
-      tasks: configuration
+      tags: configuration
   when: dnsmasq_deploy
-  tasks: configuration
+  tags: configuration

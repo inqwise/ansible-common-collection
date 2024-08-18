@@ -61,8 +61,6 @@
   when:
     - consul_license is defined
 
-
-
 - name: resolv
   include_tasks: "resolv.yml"
 
