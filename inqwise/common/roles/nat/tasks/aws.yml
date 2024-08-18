@@ -1,0 +1,38 @@
+- name: Gather information about any VPC route tables
+  amazon.aws.ec2_vpc_route_table_info:
+    region: "{{ ec2_instance.region }}"
+    filters:
+      vpc-id: "{{ ec2_instance.vpc_id }}"
+  register: route_table_info_result
+  tags: configuration
+
+    #public subnets
+    #msg: "{{ route_table_info_result.route_tables | json_query('[?associations[?association_state.state==`associated`] && routes[? starts_with(not_null(@.gateway_id, ``),`igw-`) && @.destination_cidr_block==`0.0.0.0/0`]].{subnets: associations[*].subnet_id, route: routes[? starts_with(not_null(@.gateway_id, ``),`igw-`) && @.destination_cidr_block==`0.0.0.0/0`]|[0]}')}}"
+    #private subnets
+    #msg: "{{ route_table_info_result.route_tables | json_query('[?associations[?association_state.state==`associated` && not_null(@.subnet_id) ] && length(routes[? starts_with(not_null(@.gateway_id, ``),`igw-`)])==`0`].{subnets: associations[*].subnet_id, route: routes[?destination_cidr_block != null]}')}}"
+
+- set_fact:
+    private_routes: "{{ route_table_info_result.route_tables | json_query('[?associations[?association_state.state==`associated` && not_null(@.subnet_id) ] && length(routes[? starts_with(not_null(@.gateway_id, ``),`igw-`)])==`0`].{subnets: associations[*].subnet_id, route: routes[?destination_cidr_block != null]}')}}"
+
+- debug:
+    msg: "{{ private_routes | map(attribute='subnets') | flatten }}"
+  tags: debug
+
+- ansible.builtin.assert:
+    that: 
+      - ec2_instance.eni_id is defined
+      - ec2_instance.id is defined
+    msg: "variables are defined"
+
+- ansible.builtin.assert:
+    that: 
+      - private_routes|length > 0
+    msg: "private_routes is empty"
+
+- name: debug just to trigger a handler
+  debug:
+    msg: "trigger a handler"
+  changed_when: true
+  when: private_routes|length > 0
+  notify:
+    - apply aws nat

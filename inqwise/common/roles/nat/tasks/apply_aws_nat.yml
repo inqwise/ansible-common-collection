@@ -1,0 +1,17 @@
+---
+- name: Disable source/dest check
+  ec2_eni:
+    eni_id: "{{ ec2_instance.eni_id }}"
+    region: "{{ ec2_instance.region }}"
+    source_dest_check: false
+
+- name: Add ENI to VPC routing
+  ec2_vpc_route_table:
+    vpc_id: "{{ ec2_instance.vpc_id }}"
+    tags:
+      Name: Internal NAT
+    subnets: "{{ private_routes | map(attribute='subnets') | flatten }}"
+    routes:
+      - dest: 0.0.0.0/0
+        instance_id: "{{ ec2_instance.id }}"
+    region: "{{ ec2_instance.region }}"

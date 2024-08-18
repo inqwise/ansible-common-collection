@@ -1,0 +1,6 @@
+---
+- name: apply aws nat
+  include_tasks: apply_aws_nat.yml
+  when:
+    - private_routes is defined 
+  listen: "apply aws nat"
