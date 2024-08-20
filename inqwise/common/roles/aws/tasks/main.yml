@@ -29,9 +29,6 @@
     tasks_from: datadisk
   when: disk is defined and disk.enable | default (true)
 
-- name: aws tasks complete
-  debug: 
-    msg: aws postactions
-  changed_when: yes
-  notify: "aws postactions"
+- set_fact:
+    notify_aws_postactions: true
   tags: configuration

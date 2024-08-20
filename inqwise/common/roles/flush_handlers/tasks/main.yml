@@ -1,0 +1,10 @@
+---
+# Meant to be conditionally included to overcome 'flush_handlers' inability to honor 'when' clauses
+- block:
+  - name: "This 'flush_handlers' should NEVER be triggered as the 'when' clause ALWAYS evaluates to False!"
+    meta: flush_handlers
+  rescue:
+    - name: re-raise the error
+      fail:
+        msg: "{{ ansible_failed_result.msg | default(ansible_failed_result | to_json) }}"
+      when: ansible_failed_result is defined

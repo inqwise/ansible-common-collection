@@ -6,8 +6,8 @@
   tags: debug
 
 - name: Flush handlers
-  include_tasks:
-    file: include_flush.yml
+  ansible.builtin.include_role:
+    name: flush_handlers
   register: flush_handlers
   when: discord_message_failure == false
 
