@@ -3,7 +3,7 @@
 
 - name: consul_reverse_addr
   debug:
-    msg: "{{ ansible_default_ipv4.address.split('.')[1] + '.' + ansible_default_ipv4.address.split('.')[0] + '.in-addr.arpa' }}"
+    msg: "{{ consul_reverse_addr }}"
 
 - name: Dnsmasq role
   ansible.builtin.import_role:

@@ -46,5 +46,5 @@ consul_server: true
 
 consul_install: true
 consul_deploy: true
-consul_reverse_addr: "{{ ansible_default_ipv4.address.split('.')[1] + '.' + ansible_default_ipv4.address.split('.')[0] + '.in-addr.arpa') }}"
+consul_reverse_addr: "{{ ansible_default_ipv4.address.split('.')[1] + '.' + ansible_default_ipv4.address.split('.')[0] + '.in-addr.arpa' }}"
 consul_ports_dns: 8600

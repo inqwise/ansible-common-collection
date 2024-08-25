@@ -1,19 +1,41 @@
-- name: Create Iptables NAT chain
-  iptables:
-    table: nat
-    chain: POSTROUTING
-    out_interface: '{{ masquerade_out_interface }}'
-    source: '{{ masquerade_source }}'
-    destination: '{{ masquerade_destination }}'
-    jump: MASQUERADE
-    protocol: '{{ masquerade_protocol }}'
-    comment: 'Ansible NAT Masquerade'
-  tags: installation
+---
 
-- name: Enable IPv4 forwarding
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: 1
-    state: present
-    reload: True
-  tags: installation  
+- name: Ensure IPv4 forwarding is enabled at boot via sysctl.d
+  copy:
+    dest: /etc/sysctl.d/99-ip-forward.conf
+    content: |
+      # Enable IPv4 forwarding
+      net.ipv4.ip_forward = 1
+
+- name: Reload sysctl to apply the new configuration
+  command: sysctl --system
+
+- name: Create iptables NAT rule script
+  copy:
+    dest: /usr/local/bin/apply_nat_rule.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      /sbin/iptables -t nat -A POSTROUTING -o {{ masquerade_out_interface }} \
+        -s {{ masquerade_source }} -d {{ masquerade_destination }} -p {{ masquerade_protocol }} \
+        -j MASQUERADE -m comment --comment 'Ansible NAT Masquerade'
+
+- name: Create systemd service to apply NAT rule at boot
+  copy:
+    dest: /etc/systemd/system/apply-nat-rule.service
+    content: |
+      [Unit]
+      Description=Apply specific NAT iptables rule
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/apply_nat_rule.sh
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start the service
+  systemd:
+    name: apply-nat-rule
+    enabled: yes
+    state: started
