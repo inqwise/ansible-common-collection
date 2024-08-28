@@ -24,6 +24,7 @@
     mode: "0644"
     modification_time: preserve
     access_time: preserve
+
 - name: Configure consul
   ansible.builtin.template:
     src: consul.hcl.j2
@@ -62,10 +63,9 @@
     - consul_license is defined
 
 - name: resolv
-  include_tasks: "resolv.yml"
+  include_tasks: resolv.yml
 
 - name: Start and enable consul
   ansible.builtin.service:
     name: consul
-    state: started
     enabled: true
