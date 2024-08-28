@@ -1,0 +1,15 @@
+
+{% for template in consul_templates %}
+template {
+  source      = "{{ template.source }}"
+  destination = "{{ template.destination }}"
+  command     = "{{ template.command }}"
+  perms       = {{ template.perms }}
+  backup      = {{ template.backup | lower }}
+  wait {
+    min = "{{ template.min_wait }}"
+    max = "{{ template.max_wait }}"
+  }
+}
+
+{% endfor %}

@@ -1,0 +1,122 @@
+---
+- name: Obtain the latest version from the Consul-Template Hashicorp repo
+  when: consul_template_version == "latest"
+  tags: installation
+  block:
+    - name: Scrape Hashicorp API endpoint to obtain latest Consul-Template version
+      ansible.builtin.uri:
+        url: https://api.releases.hashicorp.com/v1/releases/consul-template/latest
+        return_content: yes
+      become: false
+      register: __consul_template_latest_version
+
+    - name: Parse the JSON to find the correct download URL
+      ansible.builtin.set_fact:
+        consul_template_download_url: "{{ __consul_template_latest_version.json.builds | selectattr('arch', 'equalto', consul_template_cpu_arch) | selectattr('os', 'equalto', consul_template_os_family) | map(attribute='url') | first }}"
+
+    - name: Latest available Consul-Template version
+      ansible.builtin.set_fact:
+        consul_template_version: "{{ __consul_template_latest_version.json.version }}"
+
+    - name: Debug the consul-template URL and Version
+      debug:
+        msg: 
+          - "The download URL for consul-template is {{ consul_template_download_url }}"
+          - "The latest version of consul-template is {{ consul_template_version }}"
+  
+- name: Construct the consul-template URL based on version, architecture, and OS
+  ansible.builtin.set_fact:
+    consul_template_download_url: "https://releases.hashicorp.com/consul-template/{{ consul_template_version }}/consul-template_{{ consul_template_version }}_{{ consul_template_os_family }}_{{ consul_template_cpu_arch }}.zip"
+  when: consul_template_version != "latest"
+  tags: installation
+
+
+- name: Install unzip package
+  ansible.builtin.package:
+    name: unzip
+    state: present
+  tags: installation
+
+- name: Create consul-template directory structure
+  ansible.builtin.file:
+    state: directory
+    path: "{{ consul_template_home }}/{{ item }}"
+    owner: "{{ consul_template_user }}"
+    group: "{{ consul_template_group }}"
+  loop:
+    - ""
+    - "bin"
+    - "config"
+    - "templates"
+  tags: configuration
+
+- name: Check if consul-template archive exists
+  stat:
+    path: "{{ consul_template_staging_area }}/{{ consul_template_archive_file }}"
+  register: consul_template_archive_stat
+  tags: installation
+
+- name: Download consul-template binary
+  ansible.builtin.get_url:
+    url: "{{ consul_template_download_url }}"
+    dest: "{{ consul_template_staging_area }}/{{ consul_template_archive_file }}"
+  when: not consul_template_archive_stat.stat.exists
+  tags: installation
+
+- name: Unzip the downloaded package
+  unarchive:
+    src: "{{ consul_template_staging_area }}/{{ consul_template_archive_file }}"
+    dest: "{{ consul_template_staging_area }}"
+    copy: False
+    creates: "{{ consul_template_staging_area }}/{{ consul_template_binary }}"
+  when: not ansible_check_mode
+  tags: configuration
+
+- name: Copy consul-template binary into place
+  ansible.builtin.copy:
+    src: "{{ consul_template_staging_area }}/{{ consul_template_binary }}"
+    dest: "{{ consul_template_home }}/bin/{{ consul_template_binary }}"
+    mode: '0755'
+  when: not ansible_check_mode
+  tags: configuration
+
+- name: Update consul-template permissions
+  ansible.builtin.file:
+    path: "{{ consul_template_home }}/bin/{{ consul_template_binary }}"
+    owner: "{{ consul_template_user }}"
+    group: "{{ consul_template_group }}"
+    mode: "0755"
+  tags: configuration
+
+- name: Copy consul-template systemd service configuration
+  ansible.builtin.template:
+    src: consul-template.service.systemd.j2
+    dest: /etc/systemd/system/consul-template.service
+    mode: '0755'
+  when: consul_template_use_systemd
+  tags: configuration
+
+- name: Deploy consul-template config file
+  ansible.builtin.template:
+    src: "{{ consul_template_config_file_template }}"
+    dest: "{{ consul_template_home }}/config/{{ consul_template_config_file }}"
+    mode: '0755'
+  tags: configuration
+
+- name: Copy template files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ consul_template_home }}/templates/{{ item | basename }}"
+  loop: "{{ consul_template_template_files }}"
+  when: consul_template_template_files | length > 0
+  notify: restart consul-template
+  tags: configuration
+
+- name: Copy template templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ consul_template_home }}/templates/{{ item.dest | default(item.src | basename | regex_replace('^(.*)\\.j2$', '\\1')) }}"
+  loop: "{{ consul_template_template_templates }}"
+  when: consul_template_template_templates | length > 0
+  notify: restart consul-template
+  tags: configuration

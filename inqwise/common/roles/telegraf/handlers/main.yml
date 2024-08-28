@@ -5,5 +5,5 @@
   service:
     name: telegraf
     state: restarted
-    enabled: yes
+    enabled: true
   when: telegraf_service_start_and_enable

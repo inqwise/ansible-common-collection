@@ -1,0 +1,7 @@
+---
+- name: Ensure consul-template service is started and enabled
+  ansible.builtin.service:
+    name: consul-template
+    state: started
+    enabled: yes
+  tags: configuration

@@ -1,0 +1,6 @@
+[Unit]
+Description=Shrink system logs to 100M
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/journalctl --vacuum-size=100M

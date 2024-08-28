@@ -1,0 +1,7 @@
+---
+- name: restart consul-template
+  ansible.builtin.service:
+    name: consul-template
+    state: restarted
+    enabled: true
+  when: consul_template_service_start_and_enable
