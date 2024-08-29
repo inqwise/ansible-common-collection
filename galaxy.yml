@@ -1,0 +1,17 @@
+---
+
+namespace: inqwise
+name: common
+version: 1.0.0
+readme: README.md
+authors:
+  - Inqwise <inqwise.com>
+  - Alex Misyuk <alex@inqwise.com>
+description: Ansible collection to manage common processes
+license:
+  - GPL-3.0-or-later
+tags: 
+  - common
+  - inqwise
+repository: https://github.com/inqwise/ansible-common-collection
+issues: https://github.com/inqwise/ansible-common-collection/issues
