@@ -1,6 +1,6 @@
 ---
 - name: Java configure
-  tags: configuration
+  tags: always
   block:
 
     - name: disable hugepage
@@ -9,8 +9,12 @@
     - name: disable hugepage defrag
       command: echo never > /sys/kernel/mm/transparent_hugepage/defrag
 
-    - name: add a vm.swappiness setting at the end of the sysctl.conf
-      sysctl: name=vm.swappiness value=10 state=present reload=yes
+    - name: Add vm.swappiness setting at the end of the sysctl.conf
+      ansible.builtin.sysctl:
+        name: vm.swappiness
+        value: 10
+        state: present
+        reload: yes
 
     - import_role:
         name: sysctl

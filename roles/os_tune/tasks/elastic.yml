@@ -1,8 +1,7 @@
 ---
 - name: Elastic configure
-  tags: configuration
+  tags: always
   block:
-
     - name: configure system settings, file descriptors and number of threads
       pam_limits:
         domain: "{{ulimit.user}}"

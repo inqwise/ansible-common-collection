@@ -1,0 +1,32 @@
+---
+
+- name: Restart consul
+  ansible.builtin.service:
+    name: consul
+    state: restarted
+    enabled: true
+  register: consul_restart
+  failed_when: consul_server  # Fail immediately on restart failure if consul_server is true
+
+- name: Check Consul service status
+  ansible.builtin.shell: "journalctl -u consul -n 20 --no-pager"
+  register: consul_status_log
+  when: consul_restart is failed and not consul_server
+
+- name: Determine failure reason
+  block:
+    - name: Check for 'Failed to join' error
+      set_fact:
+        join_failure: "{{ 'Failed to join' in consul_status_log.stdout }}"
+
+    - name: Add failed join IPs to consul_failure_join
+      set_fact:
+        consul_failure_join: "{{ consul_failure_join | default([]) + [item] }}"
+      with_items: "{{ consul_status_log.stdout | regex_findall('Failed to join ([0-9.]+):8301') }}"
+      when: join_failure
+
+    - name: Log and fail for other errors
+      fail:
+        msg: "Consul restart failed due to an unexpected issue: {{ consul_status_log.stdout }}. Failed join attempts: {{ consul_failure_join }}"
+      when: not join_failure
+  when: consul_restart is failed and not consul_server

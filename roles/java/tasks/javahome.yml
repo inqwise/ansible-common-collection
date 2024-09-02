@@ -1,0 +1,36 @@
+---
+
+- name: Extract JAVA_HOME from Java settings
+  ansible.builtin.command:
+    cmd: java -XshowSettings:properties -version | grep java.home
+  register: java_settings_output
+  changed_when: false
+
+- name: Display java_settings_output
+  ansible.builtin.debug:
+    var: java_settings_output.stderr
+  tags: debug
+
+- name: Check if java_settings_output.stderr is set
+  ansible.builtin.fail:
+    msg: "java_settings_output.stderr is not set."
+  when: not java_settings_output.stderr is defined or java_settings_output.stderr == ""
+
+- name: Search java.home value
+  ansible.builtin.set_fact:
+    search_results: "{{ java_settings_output.stderr | regex_search('^\\s*java\\.home\\s*=\\s*(.*)$', '\\1', multiline=True) }}"
+  
+- name: Set java_home
+  ansible.builtin.set_fact:
+    java_home: "{{ search_results | first }}"
+  when: search_results is defined and search_results | length > 0
+
+- name: Display Java home
+  ansible.builtin.debug:
+    var: java_home
+  tags: debug
+
+- name: Check if JAVA_HOME is set
+  ansible.builtin.fail:
+    msg: "JAVA_HOME environment variable is not set. Please set JAVA_HOME before proceeding."
+  when: java_home is not defined or java_home == ""

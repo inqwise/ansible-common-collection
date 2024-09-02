@@ -10,9 +10,10 @@ consul_template_staging_area: "/tmp"
 consul_template_binary: consul-template
 consul_template_home: /opt/consul-template
 consul_template_use_config_dir: false
-consul_template_config_file_template: consul-template.cfg.j2
-consul_template_config_file: consul-template.cfg
-consul_template_log_file: /var/log/consul-template
+consul_template_config_file_template: consul-template.hcl.j2
+consul_template_config_file: consul-template.hcl
+consul_template_log_folder: /var/log/consul-template
+consul_template_log_file: "{{ consul_template_log_folder }}/all.log"
 consul_template_log_level: "INFO"
 consul_template_consul_server: "127.0.0.1"
 consul_template_consul_port: "8500"

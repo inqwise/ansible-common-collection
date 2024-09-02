@@ -115,8 +115,16 @@
 - name: Copy template templates
   ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: "{{ consul_template_home }}/templates/{{ item.dest | default(item.src | basename | regex_replace('^(.*)\\.j2$', '\\1')) }}"
+    dest: "{{ consul_template_home }}/templates/{{ item.destination | default(item.src | basename | regex_replace('^(.*)\\.j2$', '\\1')) }}"
   loop: "{{ consul_template_template_templates }}"
   when: consul_template_template_templates | length > 0
   notify: restart consul-template
   tags: configuration
+
+- name: Ensure directory and permissions for consul logs
+  file:
+    path: "{{ consul_template_log_folder }}"
+    state: directory
+    owner: "{{ consul_template_user }}"
+    group: "{{ consul_template_group }}"
+    mode: '0750'

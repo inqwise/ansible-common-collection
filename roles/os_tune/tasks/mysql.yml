@@ -1,6 +1,6 @@
 ---
 - name: Mysql configure
-  tags: configuration
+  tags: always
   block:
 
     - name: configure system settings, file descriptors and number of threads
