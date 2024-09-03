@@ -1,0 +1,17 @@
+---
+
+- name: Initialize on_terminate_script_contents if undefined
+  set_fact:
+    on_terminate_script_contents: []
+  when: on_terminate_script_contents is not defined
+  tags: configuration
+
+- name: Add Consul leave command to on_terminate_script_contents
+  set_fact:
+    on_terminate_script_contents: "{{ on_terminate_script_contents + consul_leave_script }}"
+  vars:
+    consul_leave_script:
+      - |
+        #!/bin/bash
+        consul leave
+  tags: configuration

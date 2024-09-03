@@ -69,3 +69,7 @@
   ansible.builtin.service:
     name: consul
     enabled: true
+
+- name: Leave cluster on shutdown
+  ansible.buildin.include_tasks: leave_on_shutdown.yml
+  when: consul_leave_on_shutdown

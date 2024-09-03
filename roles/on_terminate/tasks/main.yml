@@ -1,0 +1,63 @@
+# tasks/main.yml
+
+- name: Ensure on_terminate script directory exists
+  file:
+    path: "{{ on_terminate_script_destination }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy the provided scripts to the on_terminate script directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ on_terminate_script_destination }}/{{ item | basename }}"
+    mode: '0755'
+  loop: "{{ on_terminate_script_paths }}"
+  when: on_terminate_script_paths | length > 0
+
+- name: Create and save scripts from provided content
+  copy:
+    dest: "{{ on_terminate_script_destination }}/script_{{ index + 1 }}.sh"
+    content: "{{ item }}"
+    mode: '0755'
+  loop: "{{ on_terminate_script_contents }}"
+  loop_control:
+    index_var: index
+  when: on_terminate_script_contents | length > 0
+
+- name: Create the on_terminate executor script
+  copy:
+    dest: "{{ on_terminate_script_destination }}/execute_on_terminate_scripts.sh"
+    content: |
+      #!/bin/bash
+      for script in {{ on_terminate_script_destination }}/*; do
+        if [[ -x "$script" ]]; then
+          echo "Executing $script..."
+          $script
+        fi
+      done
+    mode: '0755'
+
+- name: Create systemd service for executing on_terminate scripts
+  copy:
+    dest: /etc/systemd/system/{{ on_terminate_service_name }}
+    content: |
+      [Unit]
+      Description=Execute custom on_terminate scripts on system shutdown
+      DefaultDependencies=no
+      Before=shutdown.target reboot.target halt.target
+
+      [Service]
+      Type=oneshot
+      ExecStart={{ on_terminate_script_destination }}/execute_on_terminate_scripts.sh
+      RemainAfterExit=true
+
+      [Install]
+      WantedBy=shutdown.target reboot.target halt.target
+
+- name: Reload systemd daemon to recognize new service
+  command: systemctl daemon-reload
+
+- name: Enable the on_terminate executor service
+  systemd:
+    name: "{{ on_terminate_service_name }}"
+    enabled: yes

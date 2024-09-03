@@ -1,0 +1,5 @@
+# defaults/main.yml
+on_terminate_script_paths: []  # List of script file paths
+on_terminate_script_contents: []  # List of inline script contents
+on_terminate_script_destination: /usr/local/bin/on_terminate_scripts  # Destination directory for scripts
+on_terminate_service_name: on-terminate-executor.service  # Name of the systemd service

@@ -1,0 +1,9 @@
+---
+
+- set_fact:
+    active_interfaces: "{{ active_interfaces | default([]) + [item] }}"
+  loop: "{{ ansible_interfaces }}"
+  when: 
+    - lookup('vars', 'ansible_' ~ item).active
+    - lookup('vars', 'ansible_' ~ item).type != 'loopback'
+    - lookup('vars', 'ansible_' ~ item).type != 'bridge'

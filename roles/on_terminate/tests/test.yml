@@ -1,0 +1,14 @@
+# tests/test.yml
+- hosts: all
+  become: yes
+  roles:
+    - role: on_terminate
+      on_terminate_script_paths:
+        - /path/to/your/existing_script1.sh
+      on_terminate_script_contents:
+        - |
+          #!/bin/bash
+          echo "This is script 1 content"
+        - |
+          #!/bin/bash
+          echo "This is script 2 content"
