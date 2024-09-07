@@ -1,0 +1,48 @@
+---
+
+- name: Fetch java home
+  ansible.builtin.include_role: 
+    name: inqwise.common.java
+    tasks_from: javahome
+  when: not java_home is defined
+
+- name: Ensure JCEKS keystore is created (if not exists)
+  command: >
+    keytool -genseckey -alias dummy_alias
+    -keyalg AES -keysize 128 -storetype JCEKS
+    -keystore {{ keystore_path }} -storepass {{ keystore_password }}
+  args:
+    creates: "{{ keystore_path }}"
+  environment:
+    JAVA_HOME: "{{ java_home }}"
+  ignore_errors: true
+  register: keystore_creation_result
+  no_log: true
+
+- name: Add secret keys to JCEKS keystore
+  loop: "{{ keystore_aliases }}"
+  command: >
+    keytool -genseckey -alias {{ item.alias }}
+    -keyalg {{ item.keyalg }} -keysize 256 -storetype JCEKS
+    -keystore {{ keystore_path }} -storepass {{ keystore_password }}
+  environment:
+    JAVA_HOME: "{{ java_home }}"
+  register: keystore_add_keys_output
+  no_log: true
+
+- name: Set read-only permissions for predefined user
+  file:
+    path: "{{ keystore_path }}"
+    owner: "{{ keystore_user }}"
+    group: "{{ keystore_group }}"
+    mode: '0400'  # Read-only permissions
+
+- name: Show keystore creation result
+  debug:
+    var: keystore_creation_result
+  tags: debug
+
+- name: Show keystore key addition results
+  debug:
+    var: keystore_add_keys_output
+  tags: debug

@@ -1,0 +1,38 @@
+---
+- name: Ensure keystore_path is defined
+  assert:
+    that:
+      - keystore_path is defined
+    fail_msg: "The variable 'keystore_path' must be defined."
+    success_msg: "'keystore_path' is defined."
+
+- name: Ensure keystore_password is defined
+  assert:
+    that:
+      - keystore_password is defined
+    fail_msg: "The variable 'keystore_password' must be defined."
+    success_msg: "'keystore_password' is defined."
+
+- name: Ensure keystore_user is defined
+  assert:
+    that:
+      - keystore_user is defined
+    fail_msg: "The variable 'keystore_user' must be defined."
+    success_msg: "'keystore_user' is defined."
+
+- name: Ensure keystore_aliases is defined and has at least one element
+  assert:
+    that:
+      - keystore_aliases is defined
+      - keystore_aliases | length > 0
+    fail_msg: "The variable 'keystore_aliases' must be defined and contain at least one element."
+    success_msg: "'keystore_aliases' is defined and has elements."
+
+- name: Ensure each element in keystore_aliases has 'alias' and 'keyalg'
+  assert:
+    that:
+      - "'alias' in item"
+      - "'keyalg' in item"
+    with_items: "{{ keystore_aliases }}"
+    fail_msg: "Each item in 'keystore_aliases' must have 'alias' and 'keyalg'."
+    success_msg: "All items in 'keystore_aliases' have 'alias' and 'keyalg'."

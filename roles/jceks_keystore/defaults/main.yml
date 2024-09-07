@@ -1,0 +1,12 @@
+---
+#keystore_user: readonly user
+keystore_group: "{{ keystore_user }}"
+#keystore_path: /etc/security/keystore.jceks
+#keystore_password: changeit
+#keystore_aliases:
+#  - alias: hs256
+#    keyalg: HMacSHA256
+#  - alias: hs384
+#    keyalg: HMacSHA384
+#  - alias: hs512
+#    keyalg: HMacSHA512
