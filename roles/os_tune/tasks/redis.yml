@@ -1,0 +1,26 @@
+---
+
+- name: Disable transparent huge pages for redis performance - persistent change
+  ansible.builtin.lineinfile:
+    path: /etc/sysfs.conf
+    create: true
+    regexp: "^kernel\/mm\/transparent_hugepage\/enabled"
+    line: "kernel/mm/transparent_hugepage/enabled = never"
+
+- name: Disable transparent huge pages for redis performance - live change
+  ansible.builtin.shell:
+    cmd: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+- name: Configure vm.overcommit_memory
+  ansible.builtin.sysctl:
+    name: vm.overcommit_memory
+    value: 1
+    state: present
+    reload: true
+
+- name: Configure net.core.somaxconn
+  ansible.builtin.sysctl:
+    name: net.core.somaxconn
+    value: 1024
+    state: present
+    reload: true
