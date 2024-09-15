@@ -44,6 +44,8 @@ consul_server: true
 #       - rails
 #     port: 80
 
+# consul_alt_domain: "us-west-2"
+
 consul_install: true
 consul_deploy: true
 consul_reverse_addr: "{{ ansible_default_ipv4.address.split('.')[1] + '.' + ansible_default_ipv4.address.split('.')[0] + '.in-addr.arpa' }}"
@@ -51,6 +53,5 @@ consul_ports_dns: 8600
 consul_service_start_and_enable: "{{ 'all' in ansible_run_tags or 'configuration' in ansible_run_tags }}"
 consul_leave_on_shutdown: "{{ not consul_server }}"
 consul_recursors: ['127.0.0.1:53']
-consul_bootstrap_expect: 3
 consul_node_name: "{{ ansible_hostname }}"
 
