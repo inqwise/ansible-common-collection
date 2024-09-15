@@ -15,7 +15,7 @@
                   and (vol_info.volumes[0].status == "available" 
                         or (vol_info.volumes[0].status == "in-use" and vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id) ) )
       retries: 30
-      delay: 2
+      delay: 5
       ignore_errors: true
 
     - name: Fail if in use
