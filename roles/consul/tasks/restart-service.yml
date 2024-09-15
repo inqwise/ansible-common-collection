@@ -6,7 +6,7 @@
     state: restarted
     enabled: true
   register: consul_restart
-  failed_when: consul_server  # Fail immediately on restart failure if consul_server is true
+  ignore_errors: "{{ not consul_server }}"
 
 - name: Check Consul service status
   ansible.builtin.shell: "journalctl -u consul -n 20 --no-pager"

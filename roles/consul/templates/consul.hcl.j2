@@ -2,6 +2,10 @@
 
 # Full configuration options can be found at https://www.consul.io/docs/agent/options.html
 
+{% if consul_node_name is defined %}
+node_name = "{{ consul_node_name }}"
+{% endif %}
+
 # datacenter
 # This flag controls the datacenter in which the agent is running. If not provided,
 # it defaults to "dc1". Consul has first-class support for multiple datacenters, but
