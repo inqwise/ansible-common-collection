@@ -3,12 +3,15 @@
   tags: debug
 
 - name: Extend OS family
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: aws_utils
     tasks_from: extend_os_family
+    apply:
+      tags: always
+  tags: always
 
 - name: Collect instance info
-  import_role:
+  ansible.builtin.import_role:
     name: aws_utils
     tasks_from: collect_instance_info_speedy
   
