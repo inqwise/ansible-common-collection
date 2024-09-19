@@ -1,0 +1,15 @@
+---
+
+- name: Gather memory facts
+  ansible.builtin.setup:
+    gather_subset:
+      - hardware
+
+- name: Calculate 70% of the total memory and round to nearest 1024 MB
+  ansible.builtin.set_fact:
+    mem_for_java: "{{ (((ansible_memtotal_mb * 0.8) // 1024) * 1024) | int }}"
+
+- name: Set Java Xms and Xmx variables
+  ansible.builtin.set_fact:
+    java_xms: "{{ mem_for_java }}m"
+    java_xmx: "{{ mem_for_java }}m"
