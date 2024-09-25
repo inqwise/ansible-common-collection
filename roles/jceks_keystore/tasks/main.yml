@@ -37,12 +37,3 @@
     group: "{{ keystore_group }}"
     mode: '0400'  # Read-only permissions
 
-- name: Show keystore creation result
-  debug:
-    var: keystore_creation_result
-  tags: debug
-
-- name: Show keystore key addition results
-  debug:
-    var: keystore_add_keys_output
-  tags: debug
