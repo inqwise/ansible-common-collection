@@ -1,11 +1,20 @@
 - name: Install alloy
-  include_tasks: install.yml
-  tags: [install, installation]
+  include_tasks:
+    file: install.yml
+    apply:
+      tags: installation
+  tags: installation
 
 - name: Configure alloy
-  include_tasks: configure.yml
-  tags: [configure, configuration]
+  include_tasks: 
+    file: configure.yml
+    apply:
+      tags: configuration
+  tags: configuration
 
 - name: Manage alloy service
-  include_tasks: service.yml
-  tags: [service, configuration]
+  include_tasks:
+    file: service.yml
+    apply:
+      tags: configuration
+  tags: configuration
