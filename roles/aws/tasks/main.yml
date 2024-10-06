@@ -9,6 +9,7 @@
     apply:
       tags: always
   tags: always
+  when: not skip_extend_os_family
 
 - name: Collect instance info
   ansible.builtin.import_role:

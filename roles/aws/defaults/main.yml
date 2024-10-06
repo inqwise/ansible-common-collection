@@ -3,3 +3,5 @@
 tags_facts:
   private_dns: "private_dns"
   private_domain: "private_domain"
+
+skip_extend_os_family: false
