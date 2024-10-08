@@ -1,11 +1,15 @@
 ---
 
-- name: validate webhook_id
-  fail:
-    msg: "discord_message.webhook_id or discord_message_webhook_id is mandatory"
-  when: discord_message_webhook_id is undefined and discord_message.webhook_id is undefined
+  - debug:
+      msg: "discord_message_webhook_id:'{{  discord_message_webhook_id | default('') }}' , discord_message_webhook_token:'{{ discord_message_webhook_token | default('') }}'"
+    when: discord_message_webhook_url is defined
 
-- name: validate webhook_token
-  fail:
-    msg: "discord_message.webhook_token or discord_message_webhook_token is mandatory"
-  when: discord_message_webhook_token is undefined and discord_message.webhook_token is undefined
+  - name: validate webhook_id
+    fail:
+      msg: "discord_message.webhook_id or discord_message_webhook_id is mandatory"
+    when: discord_message_webhook_id is undefined and discord_message.webhook_id is undefined
+
+  - name: validate webhook_token
+    fail:
+      msg: "discord_message.webhook_token or discord_message_webhook_token is mandatory"
+    when: discord_message_webhook_token is undefined and discord_message.webhook_token is undefined

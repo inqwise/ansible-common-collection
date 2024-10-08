@@ -1,1 +1,5 @@
 discord_message_environment: "{{ environment_name }}"
+discord_message_webhook_url: "{{ discord_webhook }}"
+
+discord_message_webhook_id: "{{ (discord_message_webhook_url | regex_search('webhooks/([0-9]+)/[A-Za-z0-9_]+/?$', '\\1') or []) | first | default(notexist) }}"
+discord_message_webhook_token: "{{ (discord_message_webhook_url | regex_search('webhooks/[0-9]+/([A-Za-z0-9_]+)/?$', '\\1') or []) | first | default(notexist) }}"
