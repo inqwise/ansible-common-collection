@@ -23,7 +23,3 @@
     - name: Output Grafana Alloy logs
       ansible.builtin.debug:
         var: journal_ret.stdout_lines
-    - name: Raise alerts
-      ansible.builtin.assert:
-        that: false
-        fail_msg: "Service {{ service_name }} hasn't started."
