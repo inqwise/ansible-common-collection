@@ -1,0 +1,49 @@
+---
+- name: Load webhooks from URL
+  block:
+    - name: Check if the webhooks file exists at the URL
+      ansible.builtin.uri:
+        url: "{{ webhooks_file_url }}"
+        method: HEAD
+        return_content: false
+        status_code: 200
+      register: webhooks_file_check
+      failed_when: webhooks_file_check.status != 200
+      ignore_errors: true  # Ignore errors only for existence check
+
+    - name: Skip if webhooks file does not exist
+      ansible.builtin.debug:
+        msg: "webhooks file does not exist, skipping the rest of the tasks."
+      when: webhooks_file_check.status is not defined or webhooks_file_check.status != 200
+
+    - name: Download the webhooks file
+      ansible.builtin.get_url:
+        url: "{{ webhooks_file_url }}"
+        dest: "/tmp/webhooks.yml"
+        mode: '0640'
+        force: false
+        validate_certs: true
+        headers:
+          Accept: "application/x-yaml"
+      when: webhooks_file_check.status == 200
+
+    - name: Include the YAML file into variables
+      ansible.builtin.include_vars:
+        file: "/tmp/webhooks.yml"
+        name: discords_webhooks
+      when: webhooks_file_check.status == 200
+
+    - name: Set local variables for webhooks
+      ansible.builtin.set_fact:
+        discord_webhook_default: "{{ discords_webhooks.default }}"
+        discord_webhook_deploy: "{{ discords_webhooks.deploy }}"
+        discord_webhook_api-log: "{{ discords_webhooks.api-log }}"
+      when: discords_webhooks is defined
+
+    - name: Delete the temporary webhooks file
+      ansible.builtin.file:
+        path: "/tmp/webhooks.yml"
+        state: absent
+      when: webhooks_file_check.status == 200
+
+  tags: configuration
