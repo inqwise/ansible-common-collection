@@ -30,15 +30,8 @@
     - name: Include the YAML file into variables
       ansible.builtin.include_vars:
         file: "/tmp/webhooks.yml"
-        name: discords_webhooks
+        name: discord_webhooks
       when: webhooks_file_check.status == 200
-
-    - name: Set local variables for webhooks
-      ansible.builtin.set_fact:
-        discord_webhook_default: "{{ discords_webhooks.default }}"
-        discord_webhook_deploy: "{{ discords_webhooks.deploy }}"
-        discord_webhook_api-log: "{{ discords_webhooks.api-log }}"
-      when: discords_webhooks is defined
 
     - name: Delete the temporary webhooks file
       ansible.builtin.file:
