@@ -3,6 +3,10 @@
 - name: Data disk
   tags: configuration
   block:
+
+    - set_fact: 
+        datadisk_volume_attached: false
+
     # Gather information about any volume that is attached
     - amazon.aws.ec2_vol_info:
         region: "{{ ec2_instance.region }}" 
@@ -18,26 +22,47 @@
       delay: 5
       ignore_errors: true
 
+    - debug: var=vol_info.volumes
+      tags: debug
+
+    - set_fact: 
+        datadisk_volume_attached: '{{ vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id }}'
+      when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "in-use"
+
     - name: Fail if in use
       fail:
         msg: "volume {{ vol_info.volumes[0].id }} in use"
-      when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "in-use"
-
-    - debug: var=vol_info.volumes
-      run_once: true
-      tags: debug
+      when: datadisk_volume_attached
 
     - set_fact: 
-        ec2_instance: '{{ ec2_instance | combine({"data_volume_id": vol_info.volumes[0].id}) }}'
+        datadisk_volume_id: '{{ vol_info.volumes[0].id }}'
       when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "available"
 
-    - set_fact: 
-        ec2_instance: '{{ ec2_instance | combine({"data_volume_attached": vol_info.volumes[0].attachment_set[0].instance_id == ec2_instance.id }) }}'
-      when: vol_info.volumes | length == 1 and vol_info.volumes[0].status == "in-use"
+    - set_fact:
+        datadisk_delete_on_termination: "{{ private_dns is undefined or disk.delete_on_termination | default(false) }}"
 
-    - debug: var=ec2_instance
+    # attach scope
+    - name: Attach an existing volume to instance.
+      amazon.aws.ec2_vol:
+        instance: "{{ ec2_instance.id }}"
+        region: "{{ ec2_instance.region }}"
+        id: "{{ datadisk_volume_id }}"
+        device_name: "{{ disk.name }}"
+      register: ec2_vol
+      when: datadisk_volume_id is defined
+
+    # attach scope
+    - debug: var=ec2_vol
       tags: debug
+      when: datadisk_volume_id is defined
 
+    # attach scope
+    - name: Fail to attach
+      fail:
+        msg: "volume {{ datadisk_volume_id }} not attached"
+      when: datadisk_volume_id is defined and ec2_vol.changed == false
+
+    # create scope
     - name: Create new volume using SSD storage
       amazon.aws.ec2_vol:
         instance: "{{ ec2_instance.id }}"
@@ -45,27 +70,51 @@
         volume_size: "{{ disk.size }}"
         volume_type: "{{ disk.type | default('gp3') }}"
         device_name: "{{ disk.name }}"
-        delete_on_termination: "{{ private_dns is undefined or disk.delete_on_termination | default(false) }}"
-        tags: {"b-HostRole": "{{ private_dns | default(ansible_hostname) }}-data", "Name":"{{ private_dns | default(ansible_hostname) }}-data", "b-app": "{{ disk.app | default(ansible_hostname) }}"}
+        delete_on_termination: "{{ datadisk_delete_on_termination }}"
+        tags: >-
+          {{
+            {
+              "Name": (private_dns | default(ansible_hostname)) + "-data",
+              "b-app": (disk.app | default(ansible_hostname))
+            }
+            | combine(
+                {}
+                if (datadisk_delete_on_termination)
+                else {"b-HostRole": (private_dns | default(ansible_hostname)) + "-data"}
+              )
+          }}
         snapshot: "{{ data_snapshot|default(omit) }}"
         encrypted: "{{ disk.kms_key_id is defined }}"
         kms_key_id: "{{ disk.kms_key_id }}"
       register: ec2_vol
-      when: ec2_instance.data_volume_id is undefined and not (ec2_instance.data_volume_attached | default(false))
+      when: datadisk_volume_id is undefined
 
-    - name: Attach an existing volume to instance.
-      amazon.aws.ec2_vol:
-        instance: "{{ ec2_instance.id }}"
-        region: "{{ ec2_instance.region }}"
-        id: "{{ ec2_instance.data_volume_id }}"
-        device_name: "{{ disk.name }}"
-      register: ec2_vol
-      when: ec2_instance.data_volume_id is defined and not (ec2_instance.data_volume_attached | default(false))
 
+
+    # create scope
     - debug: var=ec2_vol
+      tags: debug
+      when: datadisk_volume_id is undefined
+
+    # create scope
+    - name: Fail to create
+      fail:
+        msg: "disk {{ disk.name }} not created"
+      when: datadisk_volume_id is undefined and ec2_vol.changed == false
+
+    # external use
+    - set_fact: 
+        ec2_instance: '{{ ec2_instance | combine({"datadisk_volume_id": datadisk_volume_id}) }}'
+      when: datadisk_volume_id is defined
+    
+    # external use
+    - set_fact: 
+        ec2_instance: '{{ disk | combine({"volume_id": datadisk_volume_id}) }}'
+      when: datadisk_volume_id is defined
+
+    - debug: var=ec2_instance
       tags: debug
 
     - name: Mount disk
       import_role:
         name: mount_disk
-      when: disk is defined
