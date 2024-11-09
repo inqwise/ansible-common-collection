@@ -1,7 +1,18 @@
 ---
 
   - debug:
+      msg: "discord_webhook:'{{  discord_webhook }}'"
+    tags: debug
+    when: discord_webhook is defined
+
+  - debug:
       msg: "discord_message_webhook_id:'{{  discord_message_webhook_id | default('') }}' , discord_message_webhook_token:'{{ discord_message_webhook_token | default('') }}'"
+    tags: debug
+    when: discord_message_webhook_url is defined
+
+  - debug:
+      msg: "discord_message_webhook_url:'{{  discord_message_webhook_url }}'"
+    tags: debug
     when: discord_message_webhook_url is defined
 
   - name: validate webhook_id

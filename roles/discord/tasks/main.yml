@@ -1,4 +1,17 @@
 ---
+- ansible.builtin.set_fact:
+    discord_message_webhook_url: "{{ discord_webhook }}"
+  when: discord_message_webhook_url is undefined and discord_webhook is defined
+
+- ansible.builtin.set_fact:
+    discord_message_webhook_id: "{{ (discord_message_webhook_url | regex_search('webhooks/([0-9]+)/[A-Za-z0-9_]+/?$', '\\1') or []) | first | default(notexist) }}"
+    discord_message_webhook_token: "{{ (discord_message_webhook_url | regex_search('webhooks/[0-9]+/([A-Za-z0-9_]+)/?$', '\\1') or []) | first | default(notexist) }}"
+  when: discord_message_webhook_url is defined
+
+- debug:
+    msg: "discord_message_webhook_id:'{{  discord_message_webhook_id | default('') }}' , discord_message_webhook_token:'{{ discord_message_webhook_token | default('') }}'"
+  tags: debug
+  when: discord_message_webhook_url is defined
 
 - debug: 
     msg: "In flush_handlers recover mode"
@@ -11,7 +24,7 @@
   register: flush_handlers
   when: discord_message_failure == false
 
-- debug: var=flush_handlers
+- debug: var=flush_handlers verbosity=1
   tags: debug
 
 - debug: var=ansible_failed_task verbosity=1
@@ -25,6 +38,28 @@
 
 - debug: var=discord_message_failure verbosity=1
   tags: debug
+  
+- debug: var=_discord_message verbosity=1
+  tags: debug
 
-- name: send message
-  community.general.discord: "{{_discord_message}}"
+- block:
+  - name: Send message
+    community.general.discord: "{{_discord_message}}"
+  rescue:
+    - name: Set flag
+      ansible.builtin.set_fact:
+        ansible_message_send_message_failed: true
+    
+    - debug: var=_discord_message
+      tags: debug
+
+    - debug: var=ansible_failed_result
+
+    - debug: var=ansible_failed_task
+
+    - name: Re-raise the error
+      fail:
+        msg: "{{ ansible_failed_result.msg[1024] | default(ansible_failed_result | to_json) }}"
+      when: ansible_failed_result is defined
+
+  when: not ansible_message_send_message_failed | default(false)

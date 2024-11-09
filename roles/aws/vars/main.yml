@@ -1,7 +1,0 @@
-dns_record_list:
-    - name: "{{ private_dns }}.{{ private_domain }}"
-      zone: "{{ private_domain }}"
-      type: A
-      value: "{{ private_ip }}"
-      private: true
-      ttl: 120

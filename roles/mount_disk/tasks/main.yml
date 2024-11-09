@@ -15,7 +15,7 @@
         group: '{{ disk.group }}'
         state: directory
 
-    - name: "Create a {{ disk.fstype }} filesystem on {{ disk.name }}"
+    - name: Create filesystem
       community.general.filesystem:
         fstype: "{{ disk.fstype }}"
         dev: "{{ disk.name }}"
