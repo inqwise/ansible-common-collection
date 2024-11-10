@@ -109,7 +109,7 @@
     
     # external use
     - set_fact: 
-        ec2_instance: '{{ disk | combine({"volume_id": datadisk_volume_id}) }}'
+        ec2_instance: '{{ ec2_instance | combine({"volume_id": datadisk_volume_id}) }}'
       when: datadisk_volume_id is defined
 
     - debug: var=ec2_instance
