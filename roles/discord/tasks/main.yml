@@ -4,8 +4,8 @@
   when: discord_message_webhook_url is undefined and discord_webhook is defined
 
 - ansible.builtin.set_fact:
-    discord_message_webhook_id: "{{ (discord_message_webhook_url | regex_search('webhooks/([0-9]+)/[A-Za-z0-9_]+/?$', '\\1') or []) | first | default(notexist) }}"
-    discord_message_webhook_token: "{{ (discord_message_webhook_url | regex_search('webhooks/[0-9]+/([A-Za-z0-9_]+)/?$', '\\1') or []) | first | default(notexist) }}"
+    discord_message_webhook_id: "{{ (discord_message_webhook_url | regex_search('webhooks/([0-9]+)/[A-Za-z0-9_]+/?$', '\\1') or []) | first | default('') }}"
+    discord_message_webhook_token: "{{ (discord_message_webhook_url | regex_search('webhooks/[0-9]+/([A-Za-z0-9_]+)/?$', '\\1') or []) | first | default('') }}"
   when: discord_message_webhook_url is defined
 
 - debug:
