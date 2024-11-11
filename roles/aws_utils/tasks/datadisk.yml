@@ -83,7 +83,7 @@
                 else {"b-HostRole": (private_dns | default(ansible_hostname)) + "-data"}
               )
           }}
-        snapshot: "{{ data_snapshot|default(omit) }}"
+        snapshot: "{{ disk.snapshot | default(omit) }}"
         encrypted: "{{ disk.kms_key_id is defined }}"
         kms_key_id: "{{ disk.kms_key_id }}"
       register: ec2_vol
