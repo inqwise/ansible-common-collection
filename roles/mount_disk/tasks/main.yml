@@ -16,7 +16,7 @@
         state: directory
 
     - name: Wait for device {{ disk.name }} to exist
-      community.general.stat:
+      ansible.builtin.stat:
         path: "{{ disk.name }}"
       register: device_stat
       until: device_stat.stat.exists
@@ -25,7 +25,7 @@
       ignore_errors: true  # Continue to next task even if device not found after retries
 
     - name: Fail if device {{ disk.name }} does not exist
-      community.general.fail:
+      ansible.builtin.fail:
         msg: "Device {{ disk.name }} does not exist."
       when: not device_stat.stat.exists
 
