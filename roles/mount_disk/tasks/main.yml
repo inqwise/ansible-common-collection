@@ -1,7 +1,7 @@
 ---
 
 - name: Mount disk
-  when: disk_configure
+  when: disk.enable | default(disk_configure)
   tags: configuration
   block:
 
@@ -14,6 +14,20 @@
         owner: '{{ disk.user }}'
         group: '{{ disk.group }}'
         state: directory
+
+    - name: Wait for device {{ disk.name }} to exist
+      community.general.stat:
+        path: "{{ disk.name }}"
+      register: device_stat
+      until: device_stat.stat.exists
+      retries: 10
+      delay: 2
+      ignore_errors: true  # Continue to next task even if device not found after retries
+
+    - name: Fail if device {{ disk.name }} does not exist
+      community.general.fail:
+        msg: "Device {{ disk.name }} does not exist."
+      when: not device_stat.stat.exists
 
     - name: Create filesystem
       community.general.filesystem:
