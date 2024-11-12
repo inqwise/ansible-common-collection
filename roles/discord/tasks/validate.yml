@@ -15,12 +15,16 @@
     tags: debug
     when: discord_message_webhook_url is defined
 
-  - name: validate webhook_id
+  - name: Validate webhook_id
     fail:
-      msg: "discord_message.webhook_id or discord_message_webhook_id is mandatory"
-    when: discord_message_webhook_id is undefined and discord_message.webhook_id is undefined
+      msg: "Either 'discord_message.webhook_id' or 'discord_message_webhook_id' is mandatory and cannot be empty."
+    when: >
+      (discord_message_webhook_id is not defined or discord_message_webhook_id | length == 0) and
+      (discord_message.webhook_id is not defined or discord_message.webhook_id | length == 0)
 
-  - name: validate webhook_token
+  - name: Validate webhook_token
     fail:
-      msg: "discord_message.webhook_token or discord_message_webhook_token is mandatory"
-    when: discord_message_webhook_token is undefined and discord_message.webhook_token is undefined
+      msg: "Either 'discord_message.webhook_token' or 'discord_message_webhook_token' is mandatory and cannot be empty."
+    when: >
+      (discord_message_webhook_token is not defined or discord_message_webhook_token | length == 0) and
+      (discord_message.webhook_token is not defined or discord_message.webhook_token | length == 0)
