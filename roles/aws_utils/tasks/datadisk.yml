@@ -70,6 +70,7 @@
         volume_size: "{{ disk.size }}"
         volume_type: "{{ disk.type | default('gp3') }}"
         device_name: "{{ disk.name }}"
+        iops: "{{ disk.iops | default(omit) }}"
         delete_on_termination: "{{ datadisk_delete_on_termination }}"
         tags: >-
           {{
@@ -86,6 +87,7 @@
         snapshot: "{{ disk.snapshot | default(omit) }}"
         encrypted: "{{ disk.kms_key_id is defined }}"
         kms_key_id: "{{ disk.kms_key_id }}"
+
       register: ec2_vol
       when: datadisk_volume_id is undefined
 
