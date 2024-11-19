@@ -18,9 +18,9 @@ discord_message_error_description_field:
     {{ ansible_failed_result.msg[:1014] | default(ansible_failed_result | to_json) }}
     ```
 
-default_discord_message_username: "{{ ansible_play_name }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}"
+default_discord_message_username: "{{ ansible_play_name }}"
 default_discord_message_content: >-
-  {{- 'Failure' if discord_message_failure else 'Success' -}}{{ ' by ' + discord_message_owner_name if discord_message_owner_name is defined }}
+  {{- 'Failure' if discord_message_failure else 'Success' -}}{{ ' by ' + discord_message_owner_name if discord_message_owner_name is defined }}{{ ' on ' + discord_message_environment if discord_message_environment is defined }}
 default_discord_message_avatar_url: "{{ 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Mango.png?raw=true' if discord_message_failure else 'https://github.com/ansible/logos/blob/main/community-marks/Ansible-Community-Mark-Pool.png?raw=true' }}"
 default_discord_message_embeds_last_message_title: >-
  Ansible
