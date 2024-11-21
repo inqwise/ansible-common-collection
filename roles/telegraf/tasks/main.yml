@@ -10,6 +10,12 @@
     - telegraf_install|default(True) and ansible_os_family == "RedHat" and not telegraf_agent_docker
   tags: installation
 
+- name: "Disable Autostart"
+  ansible.builtin.service:
+    name: telegraf
+    enabled: false
+  tags: installation
+
 - name: "Configure Telegraf"
   include_tasks: "configure_linux.yml"
   when:

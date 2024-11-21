@@ -75,3 +75,5 @@ telegraf_mac_user: user
 telegraf_mac_group: admin
 
 telegraf_service_start_and_enable: "{{ 'all' in ansible_run_tags or 'configuration' in ansible_run_tags }}"
+
+telegraf_service_ignore_errors: "{{ 'configuration' in ansible_run_tags }}"

@@ -1,0 +1,15 @@
+- name: "Restart Telegraf"
+  ansible.builtin.service:
+    name: telegraf
+    state: restarted
+    enabled: true
+  when: telegraf_service_start_and_enable
+  register: telegraf_restart_result
+  ignore_errors: "{{ telegraf_service_ignore_errors }}"
+
+- name: "Log Telegraf restart failure"
+  ansible.builtin.debug:
+    msg: "Telegraf service restart failed: {{ telegraf_restart_result.msg }}"
+  when:
+    - telegraf_restart_result.failed
+    - telegraf_service_ignore_errors

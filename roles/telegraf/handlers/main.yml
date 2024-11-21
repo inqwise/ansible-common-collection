@@ -1,9 +1,7 @@
 ---
 # handlers file for ansible-telegraf
 
-- name: "Restart Telegraf"
-  service:
-    name: telegraf
-    state: restarted
-    enabled: true
+- name: include task restart telegraf
+  ansible.builtin.include_tasks: restart_telegraf.yml
+  listen: Restart Telegraf
   when: telegraf_service_start_and_enable
