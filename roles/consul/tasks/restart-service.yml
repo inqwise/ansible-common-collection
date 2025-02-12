@@ -36,3 +36,11 @@
           {% endif %}
       when: not join_failure
   when: consul_restart is failed and not consul_server
+
+- name: resolv AL2
+  include_tasks: resolv_al2.yml
+  when: ansible_os_sub_family == "Amazon" and ansible_os_version_major == "2"
+
+- name: resolv AL2023
+  include_tasks: resolv_al2023.yml
+  when: ansible_os_sub_family == "Amazon" and ansible_os_version_major == "2023"

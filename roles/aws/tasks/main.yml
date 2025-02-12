@@ -11,6 +11,14 @@
   tags: always
   when: not skip_extend_os_family
 
+- name: Extend OS sub family
+  ansible.builtin.include_role:
+    name: aws_utils
+    tasks_from: extend_os_sub_family
+    apply:
+      tags: always
+  tags: always
+
 - name: Collect instance info
   ansible.builtin.import_role:
     name: aws_utils

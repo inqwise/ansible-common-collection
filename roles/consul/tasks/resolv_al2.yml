@@ -11,14 +11,7 @@
 
 - debug: var=dhclient_output
 
-- name: Restart network in anzn2
+- name: Restart network
   service:
     name: network
     state: restarted
-  when: ansible_os_family == "Amazon" and ansible_os_version_major == "2"
-
-- name: Restart network in amzn2023
-  service:
-    name: systemd-networkd
-    state: restarted
-  when: ansible_os_family == "Amazon" and ansible_os_version_major == "2023"

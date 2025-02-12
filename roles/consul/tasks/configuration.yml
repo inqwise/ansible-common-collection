@@ -62,9 +62,6 @@
   when:
     - consul_license is defined
 
-- name: resolv
-  include_tasks: resolv.yml
-
 - name: Start and enable consul
   ansible.builtin.service:
     name: consul
