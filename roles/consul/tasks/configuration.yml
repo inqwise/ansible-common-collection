@@ -62,11 +62,6 @@
   when:
     - consul_license is defined
 
-- name: Start and enable consul
-  ansible.builtin.service:
-    name: consul
-    enabled: true
-
 - name: Leave cluster on shutdown
   ansible.builtin.include_tasks: leave_on_shutdown.yml
   when: consul_leave_on_shutdown

@@ -1,5 +1,17 @@
 ---
 
+- name: Dnsmasq role
+  ansible.builtin.import_role:
+    name: dnsmasq
+  vars:
+    dnsmasq_group: root
+    dnsmasq_servers:
+      - domain: consul
+        nameserver: "127.0.0.1#{{ consul_ports_dns }}"
+      - domain: "{{ consul_reverse_addr }}"
+        nameserver: "127.0.0.1#{{ consul_ports_dns }}"
+  when: not consul_server
+
 - name: Add localhost to resolve
   ansible.builtin.lineinfile:
     path: /etc/dhcp/dhclient.conf

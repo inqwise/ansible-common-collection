@@ -6,24 +6,37 @@
     state: directory
     mode: '0755'
 
-- name: Create symbolic link for /etc/resolv.conf
-  file:
-    src: /run/systemd/resolve/stub-resolv.conf
-    dest: /etc/resolv.conf
-    state: link
-    force: yes
+#- name: Create symbolic link for /etc/resolv.conf
+#  file:
+#    src: /run/systemd/resolve/stub-resolv.conf
+#    dest: /etc/resolv.conf
+#    state: link
+#    force: yes
 
-- name: Remove resolved-disable-stub-listener.conf
-  file:
-    path: /usr/lib/systemd/resolved.conf.d/resolved-disable-stub-listener.conf
-    state: absent
+#- name: Remove resolved-disable-stub-listener.conf
+#  file:
+#    path: /usr/lib/systemd/resolved.conf.d/resolved-disable-stub-listener.conf
+#    state: absent
+
+#- name: Ensure /etc/systemd/resolved.conf.d/consul.conf exists with correct content
+#  copy:
+#    dest: /etc/systemd/resolved.conf.d/consul.conf
+#    content: |
+#      [Resolve]
+#      DNS=127.0.0.1:8600
+#      DNSSEC=false
+#      Domains=~consul
+#    mode: '0644'
+#    force: no  # Prevents overwriting if the file already exists
+
 
 - name: Ensure /etc/systemd/resolved.conf.d/consul.conf exists with correct content
   copy:
-    dest: /etc/systemd/resolved.conf.d/consul.conf
+    dest: /usr/lib/systemd/resolved.conf.d/consul.conf
     content: |
       [Resolve]
       DNS=127.0.0.1:8600
+      FallbackDNS=19.10.0.2
       DNSSEC=false
       Domains=~consul
     mode: '0644'

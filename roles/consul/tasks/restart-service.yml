@@ -1,7 +1,4 @@
-- name: Initialize consul_failure_join
-  set_fact:
-    consul_failure_join: []
-
+---  
 - name: Restart Consul
   ansible.builtin.service:
     name: consul
@@ -21,20 +18,20 @@
       set_fact:
         join_failure: "{{ 'Failed to join' in consul_status_log.stdout }}"
 
-    - name: Add failed join IPs to consul_failure_join
+    - name: Check for 'No servers available' error
       set_fact:
-        consul_failure_join: "{{ consul_status_log.stdout | regex_findall('Failed to join ([0-9.]+):8301') }}"
-      when: join_failure
+        join_failure: "{{ 'No servers available' in consul_status_log.stdout }}"
+#      when: not join_failure
+
+    - debug: var=join_failure
 
     - name: Log and fail for other errors
       fail:
         msg: |
           Consul restart failed due to an unexpected issue:
           {{ consul_status_log.stdout }}
-          {% if consul_failure_join %}
-          Failed join attempts: {{ consul_failure_join }}
-          {% endif %}
       when: not join_failure
+      
   when: consul_restart is failed and not consul_server
 
 - name: resolv AL2
