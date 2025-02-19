@@ -21,7 +21,7 @@
     - name: Check for 'No servers available' error
       set_fact:
         join_failure: "{{ 'No servers available' in consul_status_log.stdout }}"
-#      when: not join_failure
+      when: not join_failure
 
     - debug: var=join_failure
 
