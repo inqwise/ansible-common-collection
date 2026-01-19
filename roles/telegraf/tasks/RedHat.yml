@@ -4,13 +4,16 @@
   tags: installation
   block:
 
+    - debug: var=telegraf_yum_gpgkey
+      tags: debug
+
     - name: "Add yum repository"
       yum_repository:
         name: influxdb
         description: InfluxDB Repository - RHEL $releasever
         baseurl: "https://repos.influxdata.com/stable/$basearch/main"
         gpgcheck: yes
-        gpgkey: "https://repos.influxdata.com/influxdata-archive_compat.key"
+        gpgkey: "{{ telegraf_yum_gpgkey }}"
         enabled: yes
       become: true
 
